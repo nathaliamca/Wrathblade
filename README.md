@@ -23,7 +23,7 @@
   - **Arco e flecha** podem ser utilizados para ataques à distância.
 - **Objetivos**:
   - **Enfrente os inimigos**, **esquive-se dos obstáculos** e **derrote o chefe**.
-  
+
 ---
 
 ## 🌍 **Funcionalidades** 🌍
@@ -34,7 +34,7 @@
 
 ✨ **Chefão Final**: Enfrente o **chefão da masmorra** em uma batalha épica!
 
-✨ **Gráficos **: A **pixel art** torna o jogo único!
+✨ **Gráficos**: A **pixel art** torna o jogo único!
 
 ---
 
