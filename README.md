@@ -14,7 +14,7 @@
 - **Armas**: 
   - **Arco e flecha** podem ser utilizados para ataques à distância.
 - **Objetivos**:
-  - **Enfrente os inimigos**, **esquive-se dos obstáculos** e **derrote os chefes** em cada fase.
+  - **Enfrente os inimigos**, **esquive-se dos obstáculos** e **derrote o chefe**.
   
 ---
 
