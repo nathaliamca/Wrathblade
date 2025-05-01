@@ -5,6 +5,14 @@
 
 ---
 
+## ✨ Equipe
+
+- [Nathália](https://github.com/nathaliamca)
+- [Alan](https://github.com/Alanm2)
+- [gabi](https://github.com/gabimontcruz)
+
+---
+
 ## 🏰 **Como Jogar** 🏰
 
 - **Movimentação**: 
