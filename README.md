@@ -16,7 +16,7 @@
 ## 🏰 **Como Jogar** 🏰
 
 - **Movimentação**: 
-  - Use as **setas do teclado** para mover o guerreiro.
+  - Use as teclas **WASD** para mover o guerreiro.
 - **Atacar**: 
   - Pressione **Espaço** para atacar com sua **espada**.
 - **Armas**: 
@@ -59,4 +59,4 @@
 Para começar, clone o repositório do **Wrathblade**:
 
 ```bash
-git clone https://github.com/seu_usuario/wrathblade.git
+git clone https://github.com/nathaliamca/Wrathblade.git
