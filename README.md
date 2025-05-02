@@ -16,7 +16,7 @@
 ## 🏰 **Como Jogar** 🏰
 
 - **Movimentação**: 
-  - Use as **setas do teclado** para mover o guerreiro.
+  - Use as teclas **WASD** para mover o guerreiro.
 - **Atacar**: 
   - Pressione **Espaço** para atacar com sua **espada**.
 - **Armas**: 
