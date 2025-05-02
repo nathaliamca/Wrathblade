@@ -59,4 +59,4 @@
 Para começar, clone o repositório do **Wrathblade**:
 
 ```bash
-git clone https://github.com/seu_usuario/wrathblade.git
+git clone https://github.com/nathaliamca/Wrathblade.git
