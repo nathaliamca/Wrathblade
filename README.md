@@ -1,4 +1,4 @@
-# ⚔️ **Wrathblade** ⚔️
+# ⚔️ **WRATHBLADE** ⚔️
 ### *Uma Jornada Épica de Fantasia e Aventura*
 
 > **Wrathblade** é um jogo de **fantasia** onde o **guerreiro valente** se prepara para uma batalha mortal contra um **chefão temido**. O caminho é árduo, repleto de **lacaios implacáveis** e **obstáculos traiçoeiros**. Você deve atravessar várias fases para alcançar o destino final: derrotar o **chefão** e salvar o reino!
