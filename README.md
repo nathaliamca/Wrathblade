@@ -1,111 +1,62 @@
-# Raylib-Quickstart
-A simple cross platform template for setting up a project with the bleeding edge raylib code.
-Works with C or C++.
+# ⚔️ **Wrathblade** ⚔️
+### *Uma Jornada Épica de Fantasia e Aventura*
 
-## Supported Platforms
-Quickstart supports the main 3 desktop platforms:
-* Windows
-* Linux
-* MacOS
+> **Wrathblade** é um jogo de **fantasia** onde o **guerreiro valente** se prepara para uma batalha mortal contra um **chefão temido**. O caminho é árduo, repleto de **lacaios implacáveis** e **obstáculos traiçoeiros**. Você deve atravessar várias fases para alcançar o destino final: derrotar o **chefão** e salvar o reino!
 
-# Naming projects
-Do not name your game project 'raylib', it will conflict with the raylib library.
+---
 
-# VSCode Users (all platforms)
-*Note* You must have a compiler toolchain installed in addition to vscode.
+## ✨ Equipe
 
-* Download the quickstart
-* Rename the folder to your game name
-* Open the folder in VSCode
-* Run the build task ( CTRL+SHIFT+B or F5 )
-* You are good to go
+- [Nathália](https://github.com/nathaliamca)
+- [Alan](https://github.com/Alanm2)
+- [gabi](https://github.com/gabimontcruz)
 
-# Windows Users
-There are two compiler toolchains available for windows, MinGW-W64 (a free compiler using GCC), and Microsoft Visual Studio
-## Using MinGW-W64
-* Double click the `build-MinGW-W64.bat` file
-* CD into the folder in your terminal
-* run `make`
-* You are good to go
+---
 
-### Note on MinGW-64 versions
-Make sure you have a modern version of MinGW-W64 (not mingw).
-The best place to get it is from the W64devkit from
-https://github.com/skeeto/w64devkit/releases
-or the version installed with the raylib installer
-#### If you have installed raylib from the installer
-Make sure you have added the path
+## 🏰 **Como Jogar** 🏰
 
-`C:\raylib\w64devkit\bin`
+- **Movimentação**: 
+  - Use as teclas **WASD** para mover o guerreiro.
+- **Atacar**: 
+  - Pressione **Espaço** para atacar com sua **espada**.
+- **Armas**: 
+  - **Arco e flecha** podem ser utilizados para ataques à distância.
+- **Objetivos**:
+  - **Enfrente os inimigos**, **esquive-se dos obstáculos** e **derrote o chefe**.
 
-To your path environment variable so that the compiler that came with raylib can be found.
+---
 
-DO NOT INSTALL ANOTHER MinGW-W64 from another source such as msys2, you don't need it.
+## 🌍 **Funcionalidades** 🌍
 
-## Microsoft Visual Studio
-* Run `build-VisualStudio2022.bat`
-* double click the `.sln` file that is generated
-* develop your game
-* you are good to go
+✨ **Múltiplas Fases**: Cada fase traz novos desafios e inimigos.
 
-# Linux Users
-* CD into the build folder
-* run `./premake5 gmake2`
-* CD back to the root
-* run `make`
-* you are good to go
+✨ **Armas Diversas**: Desde **espada** até **arco**, escolha a melhor arma para cada desafio.
 
-# MacOS Users
-* CD into the build folder
-* run `./premake5.osx gmake2`
-* CD back to the root
-* run `make`
-* you are good to go
+✨ **Chefão Final**: Enfrente o **chefão da masmorra** em uma batalha épica!
 
-# Output files
-The built code will be in the bin dir
+✨ **Gráficos**: A **pixel art** torna o jogo único!
 
-# Working directories and the resources folder
-The example uses a utility function from `path_utils.h` that will find the resources dir and set it as the current working directory. This is very useful when starting out. If you wish to manage your own working directory you can simply remove the call to the function and the header.
+---
 
-# Changing to C++
-Simply rename `src/main.c` to `src/main.cpp` and re-run the steps above and do a clean build.
+## ⚙️ **Requisitos do Jogo** ⚙️
 
-# Using your own code
-Simply remove `src/main.c` and replace it with your code, and re-run the steps above and do a clean build.
+- **Sistema Operacional**: 
+  - Windows, Linux, ou macOS.
+  
+- **Linguagem**: 
+  - C
+  
+- **Bibliotecas**:
+  - [Raylib](https://www.raylib.com) (Gráficos)
+  - [GLFW](https://www.glfw.org) (Interface gráfica)
 
-# Building for other OpenGL targets
-If you need to build for a different OpenGL version than the default (OpenGL 3.3) you can specify an OpenGL version in your premake command line. Just modify the bat file or add the following to your command line
+---
 
-## For OpenGL 1.1
-`--graphics=opengl11`
+## 📝 **Instruções para Rodar o Jogo** 📝
 
-## For OpenGL 2.1
-`--graphics=opengl21`
+### 1️⃣ **Clone o Repositório**
 
-## For OpenGL 4.3
-`--graphics=opengl43`
+Para começar, clone o repositório do **Wrathblade**:
 
-## For OpenGLES 2.0
-`--graphics=opengles2`
-
-## For OpenGLES 3.0
-`--graphics=opengles3`
-
-# License
-Copyright (c) 2020-2025 Jeffery Myers
-
-This software is provided "as-is", without any express or implied warranty. In no event 
-will the authors be held liable for any damages arising from the use of this software.
-
-Permission is granted to anyone to use this software for any purpose, including commercial 
-applications, and to alter it and redistribute it freely, subject to the following restrictions:
-
-  1. The origin of this software must not be misrepresented; you must not claim that you 
-  wrote the original software. If you use this software in a product, an acknowledgment 
-  in the product documentation would be appreciated but is not required.
-
-  2. Altered source versions must be plainly marked as such, and must not be misrepresented
-  as being the original software.
-
-  3. This notice may not be removed or altered from any source distribution.
+```bash
+git clone https://github.com/nathaliamca/Wrathblade.git
