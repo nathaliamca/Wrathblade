@@ -74,6 +74,9 @@ void Jogo(void) {
     Texture2D backgroundTex = LoadTexture("assets/jogobg.png");
     Texture2D knightWalk = LoadTexture("assets/playerwalk.png");
     Texture2D knightBackwalk = LoadTexture("assets/backwalk.png");
+    Texture2D coracaoCheio = LoadTexture("assets/ccheio.png.png");
+    Texture2D coracaoMeio  = LoadTexture("assets/cmetade.png.png");
+    Texture2D coracaoVazio = LoadTexture("assets/cvazio.png.png");
 
     Player player = {
         .position = {100, 600},
@@ -83,6 +86,8 @@ void Jogo(void) {
         .isJumping = false,
         .facingRight = true // Começa virado para a direita
     };
+    int vida = 10; // vida cheia = 5 corações
+    const int vidaMaxima = 10;
 
     const float scale = 4;
     const float gravity = 0.6;
@@ -206,12 +211,33 @@ void Jogo(void) {
                     }
                 }
             EndMode2D();
-        EndDrawing();
-    }
+               // HUD de vida
+                float heartScale = 4.0f;  // escala para os corações (ajuste aqui)
+                int spacing = (int)(coracaoCheio.width * heartScale) - 10; // espaçamento entre corações
+
+                for (int i = 0; i < 5; i++) {
+                    float x = 20 + i * spacing;
+                    float y = 20;
+
+                    if (vida >= (i + 1) * 2) {
+                        DrawTextureEx(coracaoCheio, (Vector2){x, y}, 0, heartScale, WHITE);
+                    } else if (vida == (i * 2) + 1) {
+                        DrawTextureEx(coracaoMeio, (Vector2){x, y}, 0, heartScale, WHITE);
+                    } else {
+                        DrawTextureEx(coracaoVazio, (Vector2){x, y}, 0, heartScale, WHITE);
+                    }
+                }
+
+                EndDrawing();
+
 
     // Libera texturas
     UnloadTexture(groundTex);
     UnloadTexture(backgroundTex);
     UnloadTexture(knightWalk);
     UnloadTexture(knightBackwalk);
+    UnloadTexture(coracaoCheio);
+    UnloadTexture(coracaoMeio);
+    UnloadTexture(coracaoVazio);
+
 }
