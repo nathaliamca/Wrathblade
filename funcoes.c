@@ -212,25 +212,24 @@ void Jogo(void) {
                 }
             EndMode2D();
                // HUD de vida
-                float heartScale = 4.0f;  // escala para os corações (ajuste aqui)
-                int spacing = (int)(coracaoCheio.width * heartScale) - 10; // espaçamento entre corações
+                int spacing = (int)(coracaoCheio.width * scale) - 55; // espaçamento entre corações
 
                 for (int i = 0; i < 5; i++) {
                     float x = 20 + i * spacing;
                     float y = 20;
 
                     if (vida >= (i + 1) * 2) {
-                        DrawTextureEx(coracaoCheio, (Vector2){x, y}, 0, heartScale, WHITE);
+                        DrawTextureEx(coracaoCheio, (Vector2){x, y}, 0, scale, WHITE);
                     } else if (vida == (i * 2) + 1) {
-                        DrawTextureEx(coracaoMeio, (Vector2){x, y}, 0, heartScale, WHITE);
+                        DrawTextureEx(coracaoMeio, (Vector2){x, y}, 0, scale, WHITE);
                     } else {
-                        DrawTextureEx(coracaoVazio, (Vector2){x, y}, 0, heartScale, WHITE);
+                        DrawTextureEx(coracaoVazio, (Vector2){x, y}, 0, scale, WHITE);
                     }
                 }
 
                 EndDrawing();
 
-
+            }
     // Libera texturas
     UnloadTexture(groundTex);
     UnloadTexture(backgroundTex);
