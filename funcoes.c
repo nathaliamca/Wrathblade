@@ -64,7 +64,6 @@ typedef struct {
     float velocityY;
     bool isJumping;
     bool facingRight; // Adicionado para controlar a direção do sprite
-    bool idle;
 } Player;
 
 void Jogo(void) {
@@ -100,23 +99,23 @@ void Jogo(void) {
         .isJumping = false,
         .facingRight = true // Começa virado para a direita
     };
-        Slime slime = {
+    Slime slime = {
         .position = {400, 315}, // posição inicial da slime no chão
         .speed = 1.5,
         .texture = pinkSlime,
         .frameRec = {0, 0, 32, 32},
         .currentFrame = 0,
         .framesCounter = 0,
-        .framesSpeed = 8
+        .framesSpeed = 7
     };
 
     int vida = 10; // vida cheia = 5 corações
     const int vidaMaxima = 10;
-        bool isAttacking = false;
-        int attackFrame = 0;
-        int attackCounter = 0;
-        const int attackFramesSpeed = 6;
-        Rectangle attackRec = { 0, 0, 32, 32 };  // tamanho de cada frame
+    bool isAttacking = false;
+    int attackFrame = 0;
+    int attackCounter = 0;
+    const int attackFramesSpeed = 12;
+    Rectangle attackRec = { 0, 0, 32, 32 };  // tamanho de cada frame
 
     const float scale = 4;
     const float gravity = 0.6;
@@ -143,22 +142,19 @@ void Jogo(void) {
         // Reset movimento
         isMoving = false;
 
+// player
+
         // Movimento lateral
         if (IsKeyDown(KEY_A) || IsKeyDown(KEY_LEFT)) {
             player.position.x -= player.speed;
             player.facingRight = false;
             isMoving = true;
-            player.idle = false;
-        }
-        else{
-            player.idle = true;
         }
 
         if (IsKeyDown(KEY_D) || IsKeyDown(KEY_RIGHT)) {
             player.position.x += player.speed;
             player.facingRight = true;
             isMoving = true;
-            player.idle = false;
         }
         // Quando o jogador aperta ESPAÇO, começa a animação de ataque
         if (IsKeyPressed(KEY_SPACE) && !isAttacking) {
@@ -166,10 +162,6 @@ void Jogo(void) {
             attackFrame = 0;
             attackCounter = 0;
             attackRec.x = 0;
-}
-
-        else{
-            player.idle = true;
         }
 
         // Pulo
@@ -196,35 +188,38 @@ void Jogo(void) {
                 framesCounter = 0;
                 currentFrame++;
                 if (currentFrame > 3) currentFrame = 0;
-                frameRec.x = (float)currentFrame * frameWidth;
+                frameRec.x = currentFrame * frameWidth;
             }
+
         } 
+
+        else if (!player.isJumping){
+       // Reset para frame parado quando não está se movendo
+           currentFrame = 0;
+           frameRec.x = 0;
+       }
+        
         if (isAttacking) {
-         attackCounter++;
-        if (attackCounter >= (60 / attackFramesSpeed)) {
-            attackCounter = 0;
-            attackFrame++;
-        if (attackFrame > 3) {
-            attackFrame = 0;
-            isAttacking = false;
-        }
-        attackRec.x = attackFrame * 32;
-    }
-}
-
-        
-        
-        else {
-            // Reset para frame parado quando não está se movendo
-            currentFrame = 0;
-            frameRec.x = 0;
+        attackCounter++;
+            if (attackCounter >= (60 / attackFramesSpeed)) {
+                attackCounter = 0;
+                attackFrame++;
+                if (attackFrame > 3) {
+                    attackFrame = 0;
+                    isAttacking = false;
+                }
+            attackRec.x = attackFrame * 32;
+            }
         }
 
+
+        
+// slime
         slime.framesCounter++;
         if (slime.framesCounter >= (60 / slime.framesSpeed)) {
             slime.framesCounter = 0;
             slime.currentFrame++;
-            if (slime.currentFrame > 3) slime.currentFrame = 0;
+            if (slime.currentFrame > 7) slime.currentFrame = 0;
             slime.frameRec.x = (float)slime.currentFrame * 32; // supondo que cada frame tenha 32px de largura
         }
 
@@ -266,8 +261,8 @@ void Jogo(void) {
                     frameHeight * scale
                 };
                 
-              if (isAttacking) {
-                DrawTexturePro(knightAttack, attackRec, destRec, (Vector2){0, 0}, 0.0f, WHITE);
+            if (isAttacking) {
+            DrawTexturePro(knightAttack, attackRec, destRec, (Vector2){0, 0}, 0.0f, WHITE);
             }
             else if (!isMoving && !player.isJumping){
                 DrawTexturePro(knightIdle, frameRec, destRec, (Vector2){0, 0}, 0.0f, WHITE);
@@ -297,9 +292,9 @@ void Jogo(void) {
                     }
                 }
 
-                EndDrawing();
+        EndDrawing();
 
-            }
+    }
     // Libera texturas
     UnloadTexture(groundTex);
     UnloadTexture(backgroundTex);
@@ -310,6 +305,5 @@ void Jogo(void) {
     UnloadTexture(coracaoVazio);
     UnloadTexture(pinkSlime);
     UnloadTexture(knightAttack);
-
 
 }

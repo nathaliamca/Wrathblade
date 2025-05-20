@@ -1,1 +1,1 @@
-cc main.c funcoes.c -lraylib -lGL -lm -lpthread -ldl -lrt -lX11
+gcc main.c funcoes.c -o jogo.exe -I"C:\Users\Alan Pc´s\Downloads\raylib\include" -L"C:\Users\Alan Pc´s\Downloads\raylib\lib" -lraylib -lopengl32 -lgdi32 -lwinmm
