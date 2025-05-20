@@ -79,6 +79,7 @@ void Jogo(void) {
     Texture2D coracaoCheio = LoadTexture("assets/ccheio.png.png");
     Texture2D coracaoMeio  = LoadTexture("assets/cmetade.png.png");
     Texture2D coracaoVazio = LoadTexture("assets/cvazio.png.png");
+    Texture2D knightAttack = LoadTexture("assets/atackguerreiro.png");
 
     typedef struct {
     Vector2 position;
@@ -99,7 +100,6 @@ void Jogo(void) {
         .isJumping = false,
         .facingRight = true // Começa virado para a direita
     };
-
         Slime slime = {
         .position = {400, 315}, // posição inicial da slime no chão
         .speed = 1.5,
@@ -112,6 +112,11 @@ void Jogo(void) {
 
     int vida = 10; // vida cheia = 5 corações
     const int vidaMaxima = 10;
+        bool isAttacking = false;
+        int attackFrame = 0;
+        int attackCounter = 0;
+        const int attackFramesSpeed = 6;
+        Rectangle attackRec = { 0, 0, 32, 32 };  // tamanho de cada frame
 
     const float scale = 4;
     const float gravity = 0.6;
@@ -155,6 +160,14 @@ void Jogo(void) {
             isMoving = true;
             player.idle = false;
         }
+        // Quando o jogador aperta ESPAÇO, começa a animação de ataque
+        if (IsKeyPressed(KEY_SPACE) && !isAttacking) {
+            isAttacking = true;
+            attackFrame = 0;
+            attackCounter = 0;
+            attackRec.x = 0;
+}
+
         else{
             player.idle = true;
         }
@@ -185,7 +198,23 @@ void Jogo(void) {
                 if (currentFrame > 3) currentFrame = 0;
                 frameRec.x = (float)currentFrame * frameWidth;
             }
-        } else {
+        } 
+        if (isAttacking) {
+         attackCounter++;
+        if (attackCounter >= (60 / attackFramesSpeed)) {
+            attackCounter = 0;
+            attackFrame++;
+        if (attackFrame > 3) {
+            attackFrame = 0;
+            isAttacking = false;
+        }
+        attackRec.x = attackFrame * 32;
+    }
+}
+
+        
+        
+        else {
             // Reset para frame parado quando não está se movendo
             currentFrame = 0;
             frameRec.x = 0;
@@ -237,20 +266,20 @@ void Jogo(void) {
                     frameHeight * scale
                 };
                 
-                if (!isMoving && !player.isJumping){
-                    DrawTexturePro(knightIdle, frameRec, destRec, 
-                                 (Vector2){0, 0}, 0.0f, WHITE);
+              if (isAttacking) {
+                DrawTexturePro(knightAttack, attackRec, destRec, (Vector2){0, 0}, 0.0f, WHITE);
+            }
+            else if (!isMoving && !player.isJumping){
+                DrawTexturePro(knightIdle, frameRec, destRec, (Vector2){0, 0}, 0.0f, WHITE);
+            }
+            else {
+                if (player.facingRight){
+                    DrawTexturePro(knightWalk, frameRec, destRec, (Vector2){0, 0}, 0.0f, WHITE);
+                } else {
+                    DrawTexturePro(knightBackwalk, frameRec, destRec, (Vector2){0, 0}, 0.0f, WHITE);
                 }
-                else {
-                    if (player.facingRight == true){
-                        DrawTexturePro(knightWalk, frameRec, destRec, 
-                                    (Vector2){0, 0}, 0.0f, WHITE);
-                        }
-                    else if(player.facingRight == false){
-                        DrawTexturePro(knightBackwalk, frameRec, destRec, 
-                                    (Vector2){0, 0}, 0.0f, WHITE);
-                    }
-                }
+            }
+
             EndMode2D();
                // HUD de vida
                 int spacing = (int)(coracaoCheio.width * scale) - 55; // espaçamento entre corações
@@ -280,5 +309,7 @@ void Jogo(void) {
     UnloadTexture(coracaoMeio);
     UnloadTexture(coracaoVazio);
     UnloadTexture(pinkSlime);
+    UnloadTexture(knightAttack);
+
 
 }
