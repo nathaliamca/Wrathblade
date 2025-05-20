@@ -69,6 +69,8 @@ typedef struct {
 
 void Jogo(void) {
     // Carrega as texturas
+
+    Texture2D pinkSlime = LoadTexture("assets/pinkslimesheet.png");
     Texture2D knightIdle = LoadTexture("assets/playeridle.png");
     Texture2D groundTex = LoadTexture("assets/ground.png");
     Texture2D backgroundTex = LoadTexture("assets/jogobg.png");
@@ -78,6 +80,17 @@ void Jogo(void) {
     Texture2D coracaoMeio  = LoadTexture("assets/cmetade.png.png");
     Texture2D coracaoVazio = LoadTexture("assets/cvazio.png.png");
 
+    typedef struct {
+    Vector2 position;
+    float speed;
+    Texture2D texture;
+    Rectangle frameRec;
+    int currentFrame;
+    int framesCounter;
+    int framesSpeed;
+    } Slime;
+
+
     Player player = {
         .position = {100, 600},
         .speed = 5.0,
@@ -86,6 +99,17 @@ void Jogo(void) {
         .isJumping = false,
         .facingRight = true // Começa virado para a direita
     };
+
+        Slime slime = {
+        .position = {400, 310}, // posição inicial da slime no chão
+        .speed = 1.5,
+        .texture = pinkSlime,
+        .frameRec = {0, 0, 32, 32},
+        .currentFrame = 0,
+        .framesCounter = 0,
+        .framesSpeed = 8
+    };
+
     int vida = 10; // vida cheia = 5 corações
     const int vidaMaxima = 10;
 
@@ -167,6 +191,14 @@ void Jogo(void) {
             frameRec.x = 0;
         }
 
+        slime.framesCounter++;
+        if (slime.framesCounter >= (60 / slime.framesSpeed)) {
+            slime.framesCounter = 0;
+            slime.currentFrame++;
+            if (slime.currentFrame > 3) slime.currentFrame = 0;
+            slime.frameRec.x = (float)slime.currentFrame * 32; // supondo que cada frame tenha 32px de largura
+        }
+
         // Atualiza câmera
         camera.target.x = player.position.x + (frameWidth * scale)/2;
         camera.target.y = player.position.y + (frameHeight * scale)/2;
@@ -187,7 +219,16 @@ void Jogo(void) {
                     Vector2 position = { i * groundTex.width * scale, groundY };
                     DrawTextureEx(groundTex, position, 0.0f, scale, WHITE);
                 }
-                
+
+                Rectangle slimeDestRec = {
+                    slime.position.x,
+                    slime.position.y,
+                    slime.frameRec.width * scale,
+                    slime.frameRec.height * scale
+                };
+
+                DrawTexturePro(slime.texture, slime.frameRec, slimeDestRec, (Vector2){0, 0}, 0.0f, WHITE);
+
                 // Desenha personagem (com flip horizontal se necessário)
                 Rectangle destRec = {
                     player.position.x,
@@ -238,5 +279,6 @@ void Jogo(void) {
     UnloadTexture(coracaoCheio);
     UnloadTexture(coracaoMeio);
     UnloadTexture(coracaoVazio);
+    UnloadTexture(pinkSlime);
 
 }
