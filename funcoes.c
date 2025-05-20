@@ -101,7 +101,7 @@ void Jogo(void) {
     };
 
         Slime slime = {
-        .position = {400, 310}, // posição inicial da slime no chão
+        .position = {400, 315}, // posição inicial da slime no chão
         .speed = 1.5,
         .texture = pinkSlime,
         .frameRec = {0, 0, 32, 32},
