@@ -1,6 +1,8 @@
 #include <stdbool.h>
 #include "raylib.h"
 #include "funcoes.h"
+#include <math.h>
+
 
 int MostrarMenu(void) {
     int menuOption = 0;  // 0 = Iniciar Jogo, 1 = Sair
