@@ -94,6 +94,7 @@ void Jogo(void) {
     Texture2D coracaoMeio  = LoadTexture("assets/cmetade.png.png");
     Texture2D coracaoVazio = LoadTexture("assets/cvazio.png.png");
     Texture2D knightAttack = LoadTexture("assets/atackguerreiro.png");
+    Texture2D gameOverTexture = LoadTexture("assets/gameover.png");
 
 
 
@@ -117,6 +118,7 @@ void Jogo(void) {
     };
 
     int vida = 10; // vida cheia = 5 corações
+    bool isGameOver = false;
     float danoCooldown = 0.0f;  // Tempo de espera entre danos
     const float tempoEntreDano = 1.0f;  // em segundos
     const int vidaMaxima = 10;
@@ -282,12 +284,45 @@ void Jogo(void) {
             if (vida < 0) vida = 0;
             danoCooldown = tempoEntreDano;
         }
+            if (vida <= 0) {
+                isGameOver = true;
+            }
 
 
 
         // Atualiza câmera
         camera.target.x = player.position.x + (frameWidth * scale)/2;
         camera.target.y = player.position.y + (frameHeight * scale)/2;
+
+        if (isGameOver) {
+    BeginDrawing();
+    ClearBackground(BLACK);
+
+    // Centraliza a imagem de game over na tela
+    DrawTexture(gameOverTexture, 
+        (GetScreenWidth() - gameOverTexture.width) / 2, 
+        (GetScreenHeight() - gameOverTexture.height) / 2, 
+        WHITE
+    );
+
+    DrawText("Pressione ENTER para reiniciar", 
+        GetScreenWidth()/2 - 200, 
+        GetScreenHeight() - 100, 
+        30, 
+        WHITE
+    );
+
+    EndDrawing();
+
+    if (IsKeyPressed(KEY_ENTER)) {
+        // Reinicia o jogo
+        vida = vidaMaxima;
+        player.position = (Vector2){600, 600};
+        slime.position = (Vector2){1400, 315};
+        isGameOver = false;
+    }
+    continue; // Pula o resto do loop e volta
+}
 
         // Desenho
         BeginDrawing();
@@ -373,5 +408,7 @@ void Jogo(void) {
     UnloadTexture(coracaoVazio);
     UnloadTexture(pinkSlime);
     UnloadTexture(knightAttack);
+    UnloadTexture(gameOverTexture);
+
 
 }
