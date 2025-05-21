@@ -66,7 +66,8 @@ typedef struct {
     float jumpForce;
     float velocityY;
     bool isJumping;
-    bool movingRight; // Adicionado para controlar a direção do sprite
+    bool movingRight; // controlar a direção do sprite
+    int vida;
 } Player;
 
 typedef struct {
@@ -77,7 +78,9 @@ typedef struct {
     int currentFrame;
     int framesCounter;
     int framesSpeed;
-    bool movingRight; // <--- novo campo
+    bool movingRight; //  controlar a direção do sprite
+    int vida;
+    bool alive;
 } Slime;
 
 void Jogo(void) {
@@ -85,18 +88,24 @@ void Jogo(void) {
 
     Texture2D pinkSlime = LoadTexture("assets/pinkslimesheet.png");
     Texture2D backpinkSlime = LoadTexture("assets/backpinkslimesheet.png");
+
     Texture2D knightIdle = LoadTexture("assets/playeridle.png");
-    Texture2D groundTex = LoadTexture("assets/ground.png");
-    Texture2D backgroundTex = LoadTexture("assets/jogobg.png");
     Texture2D knightWalk = LoadTexture("assets/playerwalk.png");
     Texture2D knightBackwalk = LoadTexture("assets/backwalk.png");
-    Texture2D coracaoCheio = LoadTexture("assets/ccheio.png.png");
-    Texture2D coracaoMeio  = LoadTexture("assets/cmetade.png.png");
-    Texture2D coracaoVazio = LoadTexture("assets/cvazio.png.png");
+    
     Texture2D knightAttack = LoadTexture("assets/atackguerreiro.png");
+    Texture2D knightBackAttack = LoadTexture("assets/backatackguerreiro.png");
+    
+    Texture2D groundTex = LoadTexture("assets/ground.png");
+    Texture2D backgroundTex = LoadTexture("assets/jogobg.png");
+    
+    Texture2D coracaoCheio = LoadTexture("assets/ccheio.png");
+    Texture2D coracaoMeio  = LoadTexture("assets/cmetade.png");
+    Texture2D coracaoVazio = LoadTexture("assets/cvazio.png");
+    
     Texture2D gameOverTexture = LoadTexture("assets/gameover.png");
 
-
+    Font fonte = LoadFont("assets/fonte.ttf");
 
     Player player = {
         .position = {600, 600},
@@ -104,47 +113,55 @@ void Jogo(void) {
         .jumpForce = 15.0,
         .velocityY = 0.0,
         .isJumping = false,
-        .movingRight = true // Começa virado para a direita
+        .movingRight = true, // Começa virado para a direita
+        .vida = 10
     };
 
-    Slime slime = {
-        .position = {1400, 315},
-        .speed = 1.5,
-        .frameRec = {0, 0, 32, 32},
-        .currentFrame = 0,
-        .framesCounter = 0,
-        .framesSpeed = 7,
-        .movingRight = true
-    };
+    int quantidade_slimes = 10;
 
-    int vida = 10; // vida cheia = 5 corações
-    bool isGameOver = false;
-    float danoCooldown = 0.0f;  // Tempo de espera entre danos
-    const float tempoEntreDano = 1.0f;  // em segundos
-    const int vidaMaxima = 10;
-    bool isAttacking = false;
-    int attackFrame = 0;
-    int attackCounter = 0;
-    const int attackFramesSpeed = 12;
+    Slime slimes[quantidade_slimes];
+
+    for (int i = 0; i < quantidade_slimes; i++) {
+        slimes[i].position = (Vector2){1600 + i * 800, 315};
+        slimes[i].speed = 1.5;
+        slimes[i].frameRec = (Rectangle){0, 0, 32, 32};
+        slimes[i].currentFrame = 0;
+        slimes[i].framesCounter = 0;
+        slimes[i].framesSpeed = 7;
+        slimes[i].movingRight = true;
+        slimes[i].vida = 5;
+        slimes[i].alive = true;
+    }
+
+    bool isGameOver = false; // gameover check
+    float slimeDanoCooldown = 0;
+    float playerDanoCooldown = 0;  // Tempo de espera entre danos
+    const float tempoEntreDanoPlayer = 1;  // em segundos
+    const float tempoEntreDanoSlime = 0.5;  // em segundos
+    const int vidaMaxima = 10; // vida do player
+    bool isAttacking = false; // verifica se esta atacando
+    int attackFrame = 0; // frame inicial da animação de atacar
+    int attackCounter = 0; // contador do frame
+    const int attackFramesSpeed = 12; // velocidade da animação
     Rectangle attackRec = { 0, 0, 32, 32 };  // tamanho de cada frame
 
-    const float scale = 4;
-    const float gravity = 0.6;
-    float groundY = GetScreenHeight() - groundTex.height * scale;
+    const float scale = 4; // escala do jogo
+    const float gravity = 0.6; // gravidade
+    float groundY = GetScreenHeight() - groundTex.height * scale; // altura do chao
     float playerHeight = 32 * scale; // Altura do frame (32px * scale)
 
     // Configuração da animação
-    const int frameWidth = 32;
-    const int frameHeight = 32;
+    const int frameWidth = 32; // largura do frame do player
+    const int frameHeight = 32; // tamanho do frame do player
     Rectangle frameRec = { 0, 0, frameWidth, frameHeight };
-    int currentFrame = 0;
-    int framesCounter = 0;
-    const int framesSpeed = 8;
+    int currentFrame = 0; // primeiro frame da animação do player
+    int framesCounter = 0; // contador do frame
+    const int framesSpeed = 8; // velocidade da animação do player
     bool isMoving = false; // Para controlar quando animar
 
     // tamanho do mapa
-    const float mapStart = 300;
-    const float mapEnd = 5000;
+    const float mapStart = 300; // inicio do mapa
+    const float mapEnd = 8000; // fim do mapa
 
     Camera2D camera = { 0 };
     camera.target = (Vector2){ player.position.x + (frameWidth * scale)/2, 
@@ -157,29 +174,31 @@ void Jogo(void) {
     while (!WindowShouldClose()) {
         // Reset movimento
         isMoving = false;
-       danoCooldown -= GetFrameTime();           // diminui o tempo de cooldown a cada frame
-        if (danoCooldown < 0) danoCooldown = 0;
-                                                
+        playerDanoCooldown -= GetFrameTime();           // diminui o tempo de cooldown a cada frame
+        if (playerDanoCooldown < 0) playerDanoCooldown = 0;
+        slimeDanoCooldown -= GetFrameTime();
+        if (slimeDanoCooldown < 0) slimeDanoCooldown = 0;                                        
         
 // player
 
-        // Movimento lateral
+        // movimento player pra esquerda
         if (IsKeyDown(KEY_A) || IsKeyDown(KEY_LEFT)) {
             player.position.x -= player.speed;
             player.movingRight = false;
             isMoving = true;
         }
-
+        // movimento player pra direita
         if (IsKeyDown(KEY_D) || IsKeyDown(KEY_RIGHT)) {
             player.position.x += player.speed;
             player.movingRight = true;
             isMoving = true;
         }
 
+        // limitar movimento do player de acordo com tamanho do mapa
         if (player.position.x < mapStart) player.position.x = mapStart;
         if (player.position.x > mapEnd)  player.position.x = mapEnd;
 
-        // Quando o jogador aperta ESPAÇO, começa a animação de ataque
+        // animação de ataque
         if (IsKeyPressed(KEY_SPACE) && !isAttacking) {
             isAttacking = true;
             attackFrame = 0;
@@ -187,17 +206,17 @@ void Jogo(void) {
             attackRec.x = 0;
         }
 
-        // Pulo
+        // pulo
         if ((IsKeyDown(KEY_UP) || IsKeyDown(KEY_W)) && !player.isJumping) {
             player.velocityY = -player.jumpForce;
             player.isJumping = true;
         }
 
-        // Gravidade
+        // gravidade
         player.velocityY += gravity;
         player.position.y += player.velocityY;
 
-        // Verifica colisão com o chão
+        // colisão com o chão
         if (player.position.y + playerHeight >= groundY) {
             player.position.y = groundY - playerHeight;
             player.velocityY = 0;
@@ -216,12 +235,13 @@ void Jogo(void) {
 
         } 
 
+        // Reset para frame parado quando não está se movendo
         else if (!player.isJumping){
-       // Reset para frame parado quando não está se movendo
            currentFrame = 0;
            frameRec.x = 0;
-       }
+        }
         
+        // contador da animação de ataque
         if (isAttacking) {
         attackCounter++;
             if (attackCounter >= (60 / attackFramesSpeed)) {
@@ -234,95 +254,115 @@ void Jogo(void) {
             attackRec.x = attackFrame * 32;
             }
         }
-
-
         
-// slime
-        slime.framesCounter++;
-        if (slime.framesCounter >= (60 / slime.framesSpeed)) {
-            slime.framesCounter = 0;
-            slime.currentFrame++;
-            if (slime.currentFrame > 7) slime.currentFrame = 0;
-            slime.frameRec.x = (float)slime.currentFrame * 32; // supondo que cada frame tenha 32px de largura
+for (int i = 0; i < quantidade_slimes; i++) {
+    if (!slimes[i].alive) continue;
+
+    // Animação
+    slimes[i].framesCounter++;
+    if (slimes[i].framesCounter >= (60 / slimes[i].framesSpeed)) {
+        slimes[i].framesCounter = 0;
+        slimes[i].currentFrame++;
+        if (slimes[i].currentFrame > 7) slimes[i].currentFrame = 0;
+        slimes[i].frameRec.x = slimes[i].currentFrame * 32;
+    }
+
+    // Movimento em direção ao player
+    if (slimes[i].alive && fabs(slimes[i].position.x - player.position.x) <= 800) {
+        if (slimes[i].position.x < player.position.x) {
+            slimes[i].position.x += slimes[i].speed;
+            slimes[i].movingRight = true;
+        } else {
+            slimes[i].position.x -= slimes[i].speed;
+            slimes[i].movingRight = false;
         }
-        // Movimento da slime
-// Movimento da slime em direção ao player
-        // Movimento da slime em direção ao player (X e Y)
-        Vector2 directionToPlayer = {
-            player.position.x - slime.position.x,
-            player.position.y - slime.position.y
-        };
-        float distance = sqrtf(directionToPlayer.x * directionToPlayer.x + directionToPlayer.y * directionToPlayer.y);
+    }
+    // Hitboxes
+    Rectangle slimeRect = {
+        slimes[i].position.x,
+        slimes[i].position.y,
+        slimes[i].frameRec.width * 2,
+        slimes[i].frameRec.height * 2
+    };
 
-        if (distance > 0.1f) {
-            directionToPlayer.x /= distance;
-            directionToPlayer.y /= distance;
+    Rectangle playerRect = {
+        player.position.x,
+        player.position.y,
+        frameWidth * 2,
+        frameHeight * 2
+    };
 
-            slime.position.x += directionToPlayer.x * slime.speed;
-            slime.position.y += directionToPlayer.y * slime.speed;
+    Rectangle playerAtackRect = {
+        player.position.x,
+        player.position.y,
+        frameWidth * 5,
+        frameHeight * 3
+    };
 
-            slime.movingRight = (directionToPlayer.x > 0);
+    if (CheckCollisionRecs(slimeRect, playerRect) && playerDanoCooldown <= 0) {
+        player.vida -= 1;
+        if (player.vida < 0) player.vida = 0;
+        playerDanoCooldown = tempoEntreDanoPlayer;
+    }
+
+    if (CheckCollisionRecs(slimeRect, playerAtackRect) && isAttacking && slimeDanoCooldown <= 0) {
+        slimes[i].vida -= 1;
+        slimeDanoCooldown = tempoEntreDanoSlime;
+    }
+
+    if (slimes[i].vida <= 0) {
+        slimes[i].alive = false;
+    }
+}
+
+
+        // se a vida do Player chegar a 0 gameover
+        if (player.vida <= 0) {
+            isGameOver = true;
         }
-
-                // Verifica colisão entre slime e player
-        Rectangle slimeRect = {
-            slime.position.x,
-            slime.position.y,
-            slime.frameRec.width * scale,
-            slime.frameRec.height * scale
-        };
-
-        Rectangle playerRect = {
-            player.position.x,
-            player.position.y,
-            frameWidth * scale,
-            frameHeight * scale
-        };
-
-        if (CheckCollisionRecs(slimeRect, playerRect) && danoCooldown <= 0.0f) {
-            vida -= 1;
-            if (vida < 0) vida = 0;
-            danoCooldown = tempoEntreDano;
-        }
-            if (vida <= 0) {
-                isGameOver = true;
-            }
-
-
 
         // Atualiza câmera
         camera.target.x = player.position.x + (frameWidth * scale)/2;
         camera.target.y = player.position.y + (frameHeight * scale)/2;
 
         if (isGameOver) {
-    BeginDrawing();
-    ClearBackground(BLACK);
+            BeginDrawing();
+            ClearBackground(BLACK);
 
-    // Centraliza a imagem de game over na tela
-    DrawTexture(gameOverTexture, 
-        (GetScreenWidth() - gameOverTexture.width) / 2, 
-        (GetScreenHeight() - gameOverTexture.height) / 2, 
-        WHITE
-    );
+            // Centraliza a imagem de game over na tela
+            DrawTexture(gameOverTexture, 
+            (GetScreenWidth() - gameOverTexture.width) / 2, 
+            (GetScreenHeight() - gameOverTexture.height) / 2, 
+            WHITE
+            );
 
-    DrawText("Pressione ENTER para reiniciar", 
-        GetScreenWidth()/2 - 200, 
-        GetScreenHeight() - 100, 
-        30, 
-        WHITE
-    );
+            DrawText("Pressione ENTER para reiniciar", 
+                GetScreenWidth()/2 - 200, 
+                GetScreenHeight() - 100, 
+                30, 
+                WHITE
+            );
 
-    EndDrawing();
+            EndDrawing();
 
-    if (IsKeyPressed(KEY_ENTER)) {
-        // Reinicia o jogo
-        vida = vidaMaxima;
-        player.position = (Vector2){600, 600};
-        slime.position = (Vector2){1400, 315};
-        isGameOver = false;
-    }
-    continue; // Pula o resto do loop e volta
-}
+            if (IsKeyPressed(KEY_ENTER)) {
+                // Reinicia o jogo
+                player.vida = vidaMaxima;
+                player.position = (Vector2){600, 600};
+
+                for (int i = 0; i < quantidade_slimes; i++) {
+                    slimes[i].position = (Vector2){1400 + i * 1200, 315}; // Pode variar a posição para não ficarem sobrepostos
+                    slimes[i].vida = 5; // Se tiver vida máxima específica para slimes
+                    slimes[i].alive = true;
+                    slimes[i].movingRight = false;
+                    // Reinicie outros campos necessários
+                }
+
+                isGameOver = false;
+            }
+
+            continue; // Pula o resto do loop e volta
+        }
 
         // Desenho
         BeginDrawing();
@@ -332,29 +372,36 @@ void Jogo(void) {
             // Desenha fundo
             for (int i = -5; i < 25; i++) {
                 Vector2 position = { i * backgroundTex.width * scale, -1.45*groundY };
-                DrawTextureEx(backgroundTex, position, 0.0f, scale, WHITE);
+                DrawTextureEx(backgroundTex, position, 0, scale, WHITE);
             }
             
             // Desenha chão
-            for (int i = -5; i < 100; i++) {
+            for (int i = -5; i < 150; i++) {
                 Vector2 position = { i * groundTex.width * scale, groundY };
-                DrawTextureEx(groundTex, position, 0.0f, scale, WHITE);
+                DrawTextureEx(groundTex, position, 0, scale, WHITE);
             }
 
-            Rectangle slimeDestRec = {
-                slime.position.x,
-                slime.position.y,
-                slime.frameRec.width * scale,
-                slime.frameRec.height * scale
-            };
+            for (int i = 0; i < quantidade_slimes; i++) {
+                if (!slimes[i].alive) continue;
 
-            if (!slime.movingRight){
-                DrawTexturePro(pinkSlime, slime.frameRec, slimeDestRec, (Vector2){0, 0}, 0.0f, WHITE);
+                Rectangle slimeDestRec = {
+                    slimes[i].position.x,
+                    slimes[i].position.y,
+                    slimes[i].frameRec.width * scale,
+                    slimes[i].frameRec.height * scale
+                };
+
+                DrawTextEx(fonte, TextFormat("HP: %d", slimes[i].vida),
+                    (Vector2){slimes[i].position.x + 15, slimes[i].position.y - 20},
+                    30, 2, RED);
+
+                if (!slimes[i].movingRight) {
+                    DrawTexturePro(pinkSlime, slimes[i].frameRec, slimeDestRec, (Vector2){0, 0}, 0, WHITE);
+                } else {
+                    DrawTexturePro(backpinkSlime, slimes[i].frameRec, slimeDestRec, (Vector2){0, 0}, 0, WHITE);
+                }
             }
-            else{
-                DrawTexturePro(backpinkSlime, slime.frameRec, slimeDestRec, (Vector2){0, 0}, 0.0f, WHITE);
-            }
-            // Desenha personagem (com flip horizontal se necessário)
+
             Rectangle destRec = {
                 player.position.x,
                 player.position.y,
@@ -363,8 +410,12 @@ void Jogo(void) {
             };
             
             
-            if (isAttacking) {
+            if (isAttacking && player.movingRight) {
             DrawTexturePro(knightAttack, attackRec, destRec, (Vector2){0, 0}, 0.0f, WHITE);
+            }
+
+            else if (isAttacking && !player.movingRight) {
+                DrawTexturePro(knightBackAttack, attackRec, destRec, (Vector2){0, 0}, 0.0f, WHITE);
             }
             else if (!isMoving && !player.isJumping){
                 DrawTexturePro(knightIdle, frameRec, destRec, (Vector2){0, 0}, 0.0f, WHITE);
@@ -379,16 +430,16 @@ void Jogo(void) {
 
             EndMode2D();
                // HUD de vida
-                int spacing = (int)(coracaoCheio.width * scale) + 10; // espaçamento entre corações
+                int spacing = coracaoCheio.width * scale - 55; // espaçamento entre corações
 
                                                                        
                 for (int i = 0; i < 5; i++) {
                     float x = 20 + i * spacing;
                     float y = 20;
 
-                    if (vida >= (i + 1) * 2) {
+                    if (player.vida >= (i + 1) * 2) {
                         DrawTextureEx(coracaoCheio, (Vector2){x, y}, 0, scale, WHITE);
-                    } else if (vida == (i * 2) + 1) {
+                    } else if (player.vida == (i * 2) + 1) {
                         DrawTextureEx(coracaoMeio, (Vector2){x, y}, 0, scale, WHITE);
                     } else {
                         DrawTextureEx(coracaoVazio, (Vector2){x, y}, 0, scale, WHITE);
@@ -408,7 +459,6 @@ void Jogo(void) {
     UnloadTexture(coracaoVazio);
     UnloadTexture(pinkSlime);
     UnloadTexture(knightAttack);
+    UnloadTexture(knightBackAttack);
     UnloadTexture(gameOverTexture);
-
-
 }
