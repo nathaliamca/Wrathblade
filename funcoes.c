@@ -63,7 +63,7 @@ typedef struct {
     float jumpForce;
     float velocityY;
     bool isJumping;
-    bool facingRight; // Adicionado para controlar a direção do sprite
+    bool movingRight; // Adicionado para controlar a direção do sprite
 } Player;
 
 void Jogo(void) {
@@ -81,13 +81,14 @@ void Jogo(void) {
     Texture2D knightAttack = LoadTexture("assets/atackguerreiro.png");
 
     typedef struct {
-    Vector2 position;
-    float speed;
-    Texture2D texture;
-    Rectangle frameRec;
-    int currentFrame;
-    int framesCounter;
-    int framesSpeed;
+        Vector2 position;
+        float speed;
+        Texture2D texture;
+        Rectangle frameRec;
+        int currentFrame;
+        int framesCounter;
+        int framesSpeed;
+        bool movingRight; // <--- novo campo
     } Slime;
 
 
@@ -97,17 +98,23 @@ void Jogo(void) {
         .jumpForce = 15.0,
         .velocityY = 0.0,
         .isJumping = false,
-        .facingRight = true // Começa virado para a direita
+        .movingRight = true // Começa virado para a direita
     };
+
     Slime slime = {
-        .position = {400, 315}, // posição inicial da slime no chão
+        .position = {400, 315},
         .speed = 1.5,
         .texture = pinkSlime,
         .frameRec = {0, 0, 32, 32},
         .currentFrame = 0,
         .framesCounter = 0,
-        .framesSpeed = 7
+        .framesSpeed = 7,
+        .movingRight = true
     };
+
+    float slimeMinX = 400;
+    float slimeMaxX = 600;
+
 
     int vida = 10; // vida cheia = 5 corações
     const int vidaMaxima = 10;
@@ -131,6 +138,10 @@ void Jogo(void) {
     const int framesSpeed = 8;
     bool isMoving = false; // Para controlar quando animar
 
+    // tamanho do mapa
+    const float mapStart = 300;
+    const float mapEnd = 5000;
+
     Camera2D camera = { 0 };
     camera.target = (Vector2){ player.position.x + (frameWidth * scale)/2, 
                               player.position.y + (frameHeight * scale)/2 };
@@ -141,21 +152,25 @@ void Jogo(void) {
     while (!WindowShouldClose()) {
         // Reset movimento
         isMoving = false;
-
+        
 // player
 
         // Movimento lateral
         if (IsKeyDown(KEY_A) || IsKeyDown(KEY_LEFT)) {
             player.position.x -= player.speed;
-            player.facingRight = false;
+            player.movingRight = false;
             isMoving = true;
         }
 
         if (IsKeyDown(KEY_D) || IsKeyDown(KEY_RIGHT)) {
             player.position.x += player.speed;
-            player.facingRight = true;
+            player.movingRight = true;
             isMoving = true;
         }
+
+        if (player.position.x < mapStart) player.position.x = mapStart;
+        if (player.position.x > mapEnd)  player.position.x = mapEnd;
+
         // Quando o jogador aperta ESPAÇO, começa a animação de ataque
         if (IsKeyPressed(KEY_SPACE) && !isAttacking) {
             isAttacking = true;
@@ -222,6 +237,15 @@ void Jogo(void) {
             if (slime.currentFrame > 7) slime.currentFrame = 0;
             slime.frameRec.x = (float)slime.currentFrame * 32; // supondo que cada frame tenha 32px de largura
         }
+        // Movimento da slime
+// Movimento da slime em direção ao player
+        if (slime.position.x < player.position.x) {
+            slime.position.x += slime.speed;
+            slime.movingRight = true;
+        } else if (slime.position.x > player.position.x) {
+            slime.position.x -= slime.speed;
+            slime.movingRight = false;
+        }
 
         // Atualiza câmera
         camera.target.x = player.position.x + (frameWidth * scale)/2;
@@ -251,6 +275,7 @@ void Jogo(void) {
                     slime.frameRec.height * scale
                 };
 
+                if (!slime.movingRight)
                 DrawTexturePro(slime.texture, slime.frameRec, slimeDestRec, (Vector2){0, 0}, 0.0f, WHITE);
 
                 // Desenha personagem (com flip horizontal se necessário)
@@ -268,7 +293,7 @@ void Jogo(void) {
                 DrawTexturePro(knightIdle, frameRec, destRec, (Vector2){0, 0}, 0.0f, WHITE);
             }
             else {
-                if (player.facingRight){
+                if (player.movingRight){
                     DrawTexturePro(knightWalk, frameRec, destRec, (Vector2){0, 0}, 0.0f, WHITE);
                 } else {
                     DrawTexturePro(knightBackwalk, frameRec, destRec, (Vector2){0, 0}, 0.0f, WHITE);
