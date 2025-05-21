@@ -66,10 +66,22 @@ typedef struct {
     bool movingRight; // Adicionado para controlar a direção do sprite
 } Player;
 
+typedef struct {
+    Vector2 position;
+    float speed;
+    Texture2D texture;
+    Rectangle frameRec;
+    int currentFrame;
+    int framesCounter;
+    int framesSpeed;
+    bool movingRight; // <--- novo campo
+} Slime;
+
 void Jogo(void) {
     // Carrega as texturas
 
     Texture2D pinkSlime = LoadTexture("assets/pinkslimesheet.png");
+    Texture2D backpinkSlime = LoadTexture("assets/backpinkslimesheet.png");
     Texture2D knightIdle = LoadTexture("assets/playeridle.png");
     Texture2D groundTex = LoadTexture("assets/ground.png");
     Texture2D backgroundTex = LoadTexture("assets/jogobg.png");
@@ -80,20 +92,10 @@ void Jogo(void) {
     Texture2D coracaoVazio = LoadTexture("assets/cvazio.png.png");
     Texture2D knightAttack = LoadTexture("assets/atackguerreiro.png");
 
-    typedef struct {
-        Vector2 position;
-        float speed;
-        Texture2D texture;
-        Rectangle frameRec;
-        int currentFrame;
-        int framesCounter;
-        int framesSpeed;
-        bool movingRight; // <--- novo campo
-    } Slime;
 
 
     Player player = {
-        .position = {100, 600},
+        .position = {600, 600},
         .speed = 5.0,
         .jumpForce = 15.0,
         .velocityY = 0.0,
@@ -102,19 +104,14 @@ void Jogo(void) {
     };
 
     Slime slime = {
-        .position = {400, 315},
+        .position = {1400, 315},
         .speed = 1.5,
-        .texture = pinkSlime,
         .frameRec = {0, 0, 32, 32},
         .currentFrame = 0,
         .framesCounter = 0,
         .framesSpeed = 7,
         .movingRight = true
     };
-
-    float slimeMinX = 400;
-    float slimeMaxX = 600;
-
 
     int vida = 10; // vida cheia = 5 corações
     const int vidaMaxima = 10;
@@ -256,36 +253,40 @@ void Jogo(void) {
             ClearBackground(RAYWHITE);
             
             BeginMode2D(camera);
-                // Desenha fundo
-                for (int i = -5; i < 25; i++) {
-                    Vector2 position = { i * backgroundTex.width * scale, -1.45*groundY };
-                    DrawTextureEx(backgroundTex, position, 0.0f, scale, WHITE);
-                }
-                
-                // Desenha chão
-                for (int i = -5; i < 100; i++) {
-                    Vector2 position = { i * groundTex.width * scale, groundY };
-                    DrawTextureEx(groundTex, position, 0.0f, scale, WHITE);
-                }
+            // Desenha fundo
+            for (int i = -5; i < 25; i++) {
+                Vector2 position = { i * backgroundTex.width * scale, -1.45*groundY };
+                DrawTextureEx(backgroundTex, position, 0.0f, scale, WHITE);
+            }
+            
+            // Desenha chão
+            for (int i = -5; i < 100; i++) {
+                Vector2 position = { i * groundTex.width * scale, groundY };
+                DrawTextureEx(groundTex, position, 0.0f, scale, WHITE);
+            }
 
-                Rectangle slimeDestRec = {
-                    slime.position.x,
-                    slime.position.y,
-                    slime.frameRec.width * scale,
-                    slime.frameRec.height * scale
-                };
+            Rectangle slimeDestRec = {
+                slime.position.x,
+                slime.position.y,
+                slime.frameRec.width * scale,
+                slime.frameRec.height * scale
+            };
 
-                if (!slime.movingRight)
-                DrawTexturePro(slime.texture, slime.frameRec, slimeDestRec, (Vector2){0, 0}, 0.0f, WHITE);
-
-                // Desenha personagem (com flip horizontal se necessário)
-                Rectangle destRec = {
-                    player.position.x,
-                    player.position.y,
-                    frameWidth * scale,
-                    frameHeight * scale
-                };
-                
+            if (!slime.movingRight){
+                DrawTexturePro(pinkSlime, slime.frameRec, slimeDestRec, (Vector2){0, 0}, 0.0f, WHITE);
+            }
+            else{
+                DrawTexturePro(backpinkSlime, slime.frameRec, slimeDestRec, (Vector2){0, 0}, 0.0f, WHITE);
+            }
+            // Desenha personagem (com flip horizontal se necessário)
+            Rectangle destRec = {
+                player.position.x,
+                player.position.y,
+                frameWidth * scale,
+                frameHeight * scale
+            };
+            
+            
             if (isAttacking) {
             DrawTexturePro(knightAttack, attackRec, destRec, (Vector2){0, 0}, 0.0f, WHITE);
             }
