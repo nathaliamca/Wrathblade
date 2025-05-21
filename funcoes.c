@@ -344,7 +344,7 @@ void Jogo(void) {
 
             EndMode2D();
                // HUD de vida
-                int spacing = (int)(coracaoCheio.width * scale) + 10; // espaçamento entre corações
+                int spacing = (int)(coracaoCheio.width * scale) + 55; // espaçamento entre corações
 
                                                                        
                 for (int i = 0; i < 5; i++) {
