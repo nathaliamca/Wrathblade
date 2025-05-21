@@ -17,6 +17,7 @@ int MostrarMenu(void) {
 
         // Ação ao pressionar ENTER
         if (IsKeyPressed(KEY_ENTER)) {
+
             return menuOption; // 0 = Iniciar, 1 = Sair
         }
 
@@ -114,6 +115,8 @@ void Jogo(void) {
     };
 
     int vida = 10; // vida cheia = 5 corações
+    float danoCooldown = 0.0f;  // Tempo de espera entre danos
+    const float tempoEntreDano = 1.0f;  // em segundos
     const int vidaMaxima = 10;
     bool isAttacking = false;
     int attackFrame = 0;
@@ -145,10 +148,14 @@ void Jogo(void) {
     camera.offset = (Vector2){ GetScreenWidth()/2.0f, GetScreenHeight()/2.0f };
     camera.rotation = 0.0f;
     camera.zoom = 1.0f;
-
+    
+    SetTargetFPS(60); 
     while (!WindowShouldClose()) {
         // Reset movimento
         isMoving = false;
+       danoCooldown -= GetFrameTime();           // diminui o tempo de cooldown a cada frame
+        if (danoCooldown < 0) danoCooldown = 0;
+                                                
         
 // player
 
@@ -236,13 +243,45 @@ void Jogo(void) {
         }
         // Movimento da slime
 // Movimento da slime em direção ao player
-        if (slime.position.x < player.position.x) {
-            slime.position.x += slime.speed;
-            slime.movingRight = true;
-        } else if (slime.position.x > player.position.x) {
-            slime.position.x -= slime.speed;
-            slime.movingRight = false;
+        // Movimento da slime em direção ao player (X e Y)
+        Vector2 directionToPlayer = {
+            player.position.x - slime.position.x,
+            player.position.y - slime.position.y
+        };
+        float distance = sqrtf(directionToPlayer.x * directionToPlayer.x + directionToPlayer.y * directionToPlayer.y);
+
+        if (distance > 0.1f) {
+            directionToPlayer.x /= distance;
+            directionToPlayer.y /= distance;
+
+            slime.position.x += directionToPlayer.x * slime.speed;
+            slime.position.y += directionToPlayer.y * slime.speed;
+
+            slime.movingRight = (directionToPlayer.x > 0);
         }
+
+                // Verifica colisão entre slime e player
+        Rectangle slimeRect = {
+            slime.position.x,
+            slime.position.y,
+            slime.frameRec.width * scale,
+            slime.frameRec.height * scale
+        };
+
+        Rectangle playerRect = {
+            player.position.x,
+            player.position.y,
+            frameWidth * scale,
+            frameHeight * scale
+        };
+
+        if (CheckCollisionRecs(slimeRect, playerRect) && danoCooldown <= 0.0f) {
+            vida -= 1;
+            if (vida < 0) vida = 0;
+            danoCooldown = tempoEntreDano;
+        }
+
+
 
         // Atualiza câmera
         camera.target.x = player.position.x + (frameWidth * scale)/2;
@@ -303,8 +342,9 @@ void Jogo(void) {
 
             EndMode2D();
                // HUD de vida
-                int spacing = (int)(coracaoCheio.width * scale) - 55; // espaçamento entre corações
+                int spacing = (int)(coracaoCheio.width * scale) + 10; // espaçamento entre corações
 
+                                                                       
                 for (int i = 0; i < 5; i++) {
                     float x = 20 + i * spacing;
                     float y = 20;
