@@ -450,7 +450,7 @@ void Jogo() {
 
         // Atualiza câmera
         camera.target.x = player.position.x + (32 * scale)/2;
-        camera.target.y = player.position.y + (32 * scale)/2;
+        camera.target.y = player.position.y + (32 * scale)/2 - 100;
 
         if (isGameOver) {
             BeginDrawing();
@@ -625,8 +625,6 @@ void BossMap(Player* player) {
     // fonte do hp
     Font fonte = LoadFont("assets/fonte.ttf");
 
-    player->vida = 10;
-
     bool isGameOver = false; // gameover check
     float playerDanoCooldown = 0;  // Tempo de espera entre danos
     const float tempoEntreDanoPlayer = 1;  // em segundos
@@ -654,7 +652,7 @@ void BossMap(Player* player) {
 
     // tamanho do mapa
     const float mapStart = 300; // inicio do mapa
-    const float mapEnd = 9000; // fim do mapa
+    const float mapEnd = 3000; // fim do mapa
 
     Camera2D camera = { 0 };
     camera.target = (Vector2){ player->position.x + (32 * scale)/2, 
@@ -777,7 +775,7 @@ void BossMap(Player* player) {
 
         // Atualiza câmera
         camera.target.x = player->position.x + (32 * scale)/2;
-        camera.target.y = player->position.y + (32 * scale)/2;
+        camera.target.y = player->position.y + (32 * scale)/2 - 150;
 
         if (isGameOver) {
             BeginDrawing();
