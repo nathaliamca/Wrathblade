@@ -137,10 +137,10 @@ void Jogo(void) {
     Font fonte = LoadFont("assets/fonte.ttf");
 
     Portal portal = {
-        .position = (Vector2){3000, 315},  // posição próxima ao fim do mapa
+        .position = (Vector2){8500, 320},  // posição próxima ao fim do mapa
         .texture = portalTex,
         .frameRec = (Rectangle){0, 0, 32, 32},  // ajuste ao tamanho real da textura
-        .hitbox = (Rectangle){3050, 315, 32, 32},
+        .hitbox = (Rectangle){8550, 315, 32, 32},
 
         .currentFrame = 0,
         .framesCounter = 0,
@@ -160,7 +160,7 @@ void Jogo(void) {
         .frameRec = (Rectangle){0, 0, 32, 32}
     };
 
-    int quantidade_slimes = 2;
+    int quantidade_slimes = 6;
 
     Slime slimes[quantidade_slimes];
 
@@ -202,7 +202,7 @@ void Jogo(void) {
 
     // tamanho do mapa
     const float mapStart = 300; // inicio do mapa
-    const float mapEnd = 8000; // fim do mapa
+    const float mapEnd = 9000; // fim do mapa
 
     Camera2D camera = { 0 };
     camera.target = (Vector2){ player.position.x + (32 * scale)/2, 
