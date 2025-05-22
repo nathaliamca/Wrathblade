@@ -69,6 +69,8 @@ int MostrarMenu() {
 void Recordes(){
 }*/
 char nome[50] = {0};
+void SalvarRecorde(const char *nome, float tempoTotal);  // Protótipo da função
+
 
 void InputName() {
     Texture2D menuBackground = LoadTexture("assets/menubg.png");
