@@ -161,25 +161,32 @@ void Jogo() {
     // Carrega as texturas
     Texture2D portalTex = LoadTexture("assets/portal.png");
 
-    Texture2D pinkSlime = LoadTexture("assets/pinkslimesheet.png");
-    Texture2D backpinkSlime = LoadTexture("assets/backpinkslimesheet.png");
+    // slime texture
+    Texture2D pinkSlime = LoadTexture("assets/slime/pinkslime.png");
+    Texture2D backpinkSlime = LoadTexture("assets/slime/backpinkslime.png");
 
-    Texture2D knightIdle = LoadTexture("assets/playeridle.png");
-    Texture2D knightWalk = LoadTexture("assets/playerwalk.png");
-    Texture2D knightBackwalk = LoadTexture("assets/backwalk.png");
+    // player texture
+    Texture2D knightIdle = LoadTexture("assets/player/idle.png");
     
-    Texture2D knightAttack = LoadTexture("assets/atackguerreiro.png");
-    Texture2D knightBackAttack = LoadTexture("assets/backatackguerreiro.png");
+    Texture2D knightWalk = LoadTexture("assets/player/walk.png");
+    Texture2D knightBackwalk = LoadTexture("assets/player/backwalk.png");
     
+    Texture2D knightAttack = LoadTexture("assets/player/atack.png");
+    Texture2D knightBackAttack = LoadTexture("assets/player/backatack.png");
+    
+    // cenario texture
     Texture2D groundTex = LoadTexture("assets/ground.png");
     Texture2D backgroundTex = LoadTexture("assets/jogobg.png");
     
-    Texture2D coracaoCheio = LoadTexture("assets/ccheio.png");
-    Texture2D coracaoMeio  = LoadTexture("assets/cmetade.png");
-    Texture2D coracaoVazio = LoadTexture("assets/cvazio.png");
+    // heart texture
+    Texture2D coracaoCheio = LoadTexture("assets/heart/full.png");
+    Texture2D coracaoMeio  = LoadTexture("assets/heart/half.png");
+    Texture2D coracaoVazio = LoadTexture("assets/heart/empty.png");
     
+    // gameover texture
     Texture2D gameOverTexture = LoadTexture("assets/gameover.png");
 
+    // fonte do hp
     Font fonte = LoadFont("assets/fonte.ttf");
 
     Portal portal = {
