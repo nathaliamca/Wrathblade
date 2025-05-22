@@ -2,6 +2,8 @@
 #include "raylib.h"
 #include "funcoes.h"
 #include <math.h>
+#include <stdio.h>   // NOVO: Para arquivos
+#include <time.h>    // NOVO: Para medir tempo (opcional)
 
 
 int MostrarMenu() {
@@ -67,6 +69,8 @@ int MostrarMenu() {
 void Recordes(){
 }*/
 char nome[50] = {0};
+void SalvarRecorde(const char *nome, float tempoTotal);  // Protótipo da função
+
 
 void InputName() {
     Texture2D menuBackground = LoadTexture("assets/cenario/menubg.png");
@@ -190,6 +194,8 @@ void Jogo() {
     // fonte do hp
     Font fonte = LoadFont("assets/fonte.ttf");
 
+    float tempoJogo = 0.0f;  // NOVO: Tempo acumulado desde o início da partida
+
     Portal portal = {
         .position = (Vector2){2500, 290},  // posição próxima ao fim do mapa
         .texture = portalTex,
@@ -267,6 +273,7 @@ void Jogo() {
     
     SetTargetFPS(60); 
     while (!WindowShouldClose()) {
+         tempoJogo += GetFrameTime();  // NOVO: Soma o tempo de cada frame
         // Reset movimento
         isMoving = false;
         playerDanoCooldown -= GetFrameTime();           // diminui o tempo de cooldown a cada frame
@@ -473,8 +480,12 @@ void Jogo() {
             EndDrawing();
 
             if (IsKeyPressed(KEY_ENTER)) {
+                SalvarRecorde(nome, tempoJogo);  // NOVO: Salva nome e tempo no arquivo
+                tempoJogo = 0.0f;                // Reseta tempo para próxima partida
+
                 // Reinicia o jogo
                 player.vida = vidaMaxima;
+
                 player.position = (Vector2){600, 600};
 
                 for (int i = 0; i < quantidade_slimes; i++) {
@@ -871,5 +882,14 @@ void BossMap(Player* player) {
 
         EndDrawing();
 
+    }
+}
+void SalvarRecorde(const char *nome, float tempoTotal) {
+    FILE *arquivo = fopen("recordes.txt", "a");
+    if (arquivo != NULL) {
+        fprintf(arquivo, "%s %.2f\n", nome, tempoTotal);
+        fclose(arquivo);
+    } else {
+        printf("Erro ao abrir o arquivo de recordes.\n");
     }
 }
