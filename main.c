@@ -11,6 +11,10 @@ int main(void) {
         Jogo(); // começa o jogo se escolher "Iniciar"
     }
 
+    /*if (escolha == 1) {
+        Recordes();
+    }*/
+
     CloseWindow();
     return 0;
 }
