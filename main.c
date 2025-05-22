@@ -8,6 +8,7 @@ int main(void) {
     int escolha = MostrarMenu();  // chama o menu
 
     if (escolha == 0) {
+        InputName();
         Jogo(); // começa o jogo se escolher "Iniciar"
     }
 

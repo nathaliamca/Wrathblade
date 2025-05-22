@@ -4,7 +4,7 @@
 #include <math.h>
 
 
-int MostrarMenu(void) {
+int MostrarMenu() {
     int menuOption = 0;  // 0 = Iniciar Jogo, 1 = Sair
 
     // Carrega a imagem do título
@@ -15,12 +15,12 @@ int MostrarMenu(void) {
 
         // Controle das opções de menu com as teclas UP e DOWN
         if (IsKeyPressed(KEY_DOWN) || IsKeyPressed(KEY_S)) menuOption = (menuOption + 1) % 3;  // Vai para a próxima opção
-        if (IsKeyPressed(KEY_UP) || IsKeyPressed(KEY_W)) menuOption = (menuOption + 1) % 3;  // Vai para a opção anterior
+        if (IsKeyPressed(KEY_UP) || IsKeyPressed(KEY_W)) menuOption = (menuOption + 3 - 1) % 3;  // Vai para a opção anterior
 
         // Ação ao pressionar ENTER
         if (IsKeyPressed(KEY_ENTER)) {
 
-            return menuOption; // 0 = Iniciar, 1 = Sair
+            return menuOption; // 0 = Iniciar, 1 = Recordes, 2 = Sair
         }
 
         BeginDrawing();
@@ -40,21 +40,21 @@ int MostrarMenu(void) {
 
         // Desenha a opção "Iniciar Jogo" 
         if (menuOption == 0) {
-            DrawText("> Iniciar Jogo", centerX - 100, centerY - 150, 40, WHITE);  // Destacar a opção selecionada
+            DrawText("> Iniciar Jogo", centerX - 150, centerY - 150, 40, WHITE);  // Destacar a opção selecionada
         } else {
-            DrawText("  Iniciar Jogo", centerX - 100, centerY - 150, 40, WHITE);
+            DrawText("  Iniciar Jogo", centerX - 150, centerY - 150, 40, WHITE);
         }
 
         if (menuOption == 1) {
-            DrawText("> Recordes", centerX - 100, centerY - 110, 40, WHITE);  // Destacar a opção selecionada
+            DrawText("> Recordes", centerX - 150, centerY - 110, 40, WHITE);  // Destacar a opção selecionada
         } else {
-            DrawText("  Recordes", centerX - 100, centerY - 110, 40, WHITE);
+            DrawText("  Recordes", centerX - 150, centerY - 110, 40, WHITE);
         }
         // Desenha a opção "Sair"
         if (menuOption == 2) {
-            DrawText("> Sair", centerX - 100, centerY - 70, 40, WHITE);  // Destacar a opção selecionada
+            DrawText("> Sair", centerX - 150, centerY - 70, 40, WHITE);  // Destacar a opção selecionada
         } else {
-            DrawText("  Sair", centerX - 100, centerY - 70, 40, WHITE);
+            DrawText("  Sair", centerX - 150, centerY - 70, 40, WHITE);
         }
 
         EndDrawing();
@@ -66,6 +66,52 @@ int MostrarMenu(void) {
 /*
 void Recordes(){
 }*/
+char nome[50] = {0};
+
+void InputName() {
+    Texture2D menuBackground = LoadTexture("assets/menubg.png");
+    
+    int screenWidth = GetScreenWidth();
+    int screenHeight = GetScreenHeight();
+    
+    int length = 0;
+
+    while (!WindowShouldClose()) {
+        // Captura o texto digitado
+        int key = GetCharPressed();
+        while (key > 0) {
+            if ((key >= 32) && (key <= 125) && (length < 49)) {
+                nome[length] = (char)key;
+                length++;
+                nome[length] = '\0';
+            }
+            key = GetCharPressed();
+        }
+
+        // Apagar caractere
+        if (IsKeyPressed(KEY_BACKSPACE) && length > 0) {
+            length--;
+            nome[length] = '\0';
+        }
+
+        BeginDrawing();
+        ClearBackground(RAYWHITE);
+        Rectangle destRect = {0, 0, (float)screenWidth, (float)screenHeight};
+        DrawTexturePro(menuBackground, (Rectangle){0, 0, menuBackground.width, menuBackground.height}, destRect, (Vector2){0, 0}, 0.0f, WHITE);
+
+        DrawText("Digite seu nome:", 300, 300, 30, WHITE);
+        DrawText(nome, 300, 340, 40, WHITE);
+        DrawText("Pressione ENTER para continuar", 300, 400, 30, WHITE);
+        EndDrawing();
+
+        // Confirmar nome com ENTER
+        if (IsKeyPressed(KEY_ENTER) && length > 0) {
+            break;  // sai do loop e retorna para main
+        }
+    }
+
+    // Aqui você pode salvar o nome em uma variável global ou passar para o jogo
+}
 
 typedef struct {
     Vector2 position;
@@ -111,7 +157,7 @@ typedef struct {
     
 } Portal;
 
-void Jogo(void) {
+void Jogo() {
     // Carrega as texturas
     Texture2D portalTex = LoadTexture("assets/portal.png");
 
@@ -137,14 +183,14 @@ void Jogo(void) {
     Font fonte = LoadFont("assets/fonte.ttf");
 
     Portal portal = {
-        .position = (Vector2){8500, 320},  // posição próxima ao fim do mapa
+        .position = (Vector2){7500, 290},  // posição próxima ao fim do mapa
         .texture = portalTex,
         .frameRec = (Rectangle){0, 0, 32, 32},  // ajuste ao tamanho real da textura
-        .hitbox = (Rectangle){8550, 315, 32, 32},
+        .hitbox = (Rectangle){7550, 315, 32, 32},
 
         .currentFrame = 0,
         .framesCounter = 0,
-        .framesSpeed = 5,
+        .framesSpeed = 8,
         
         .ativo = false
     };
@@ -305,7 +351,7 @@ void Jogo(void) {
                 slimes[i].framesCounter = 0;
                 slimes[i].currentFrame++;
                 if (slimes[i].currentFrame > 7) slimes[i].currentFrame = 0;
-                slimes[i].frameRec.x = slimes[i].currentFrame * 32;
+                slimes[i].frameRec.x = slimes[i].currentFrame * slimes[i].frameRec.width;
             }
 
             // Movimento em direção ao player

@@ -3,7 +3,9 @@
 #define MENU_H
 
 int MostrarMenu();  // declara a função para ser usada em outros arquivos
+void InputName();
 void Jogo();
+
 // void Recordes();
 
 #endif
