@@ -8,7 +8,7 @@ int MostrarMenu() {
     int menuOption = 0;  // 0 = Iniciar Jogo, 1 = Sair
 
     // Carrega a imagem do título
-    Texture2D menuBackground = LoadTexture("assets/menubg.png");
+    Texture2D menuBackground = LoadTexture("assets/cenario/menubg.png");
 
     while (true) {
         if (WindowShouldClose()) return 1; // sair direto se fechar janela
@@ -69,7 +69,7 @@ void Recordes(){
 char nome[50] = {0};
 
 void InputName() {
-    Texture2D menuBackground = LoadTexture("assets/menubg.png");
+    Texture2D menuBackground = LoadTexture("assets/cenario/menubg.png");
     
     int screenWidth = GetScreenWidth();
     int screenHeight = GetScreenHeight();
@@ -157,9 +157,10 @@ typedef struct {
     
 } Portal;
 
+void BossMap(Player* player);
 void Jogo() {
     // Carrega as texturas
-    Texture2D portalTex = LoadTexture("assets/portal.png");
+    Texture2D portalTex = LoadTexture("assets/cenario/portal.png");
 
     // slime texture
     Texture2D pinkSlime = LoadTexture("assets/slime/pinkslime.png");
@@ -175,8 +176,8 @@ void Jogo() {
     Texture2D knightBackAttack = LoadTexture("assets/player/backatack.png");
     
     // cenario texture
-    Texture2D groundTex = LoadTexture("assets/ground.png");
-    Texture2D backgroundTex = LoadTexture("assets/jogobg.png");
+    Texture2D groundTex = LoadTexture("assets/cenario/ground.png");
+    Texture2D backgroundTex = LoadTexture("assets/cenario/jogobg.png");
     
     // heart texture
     Texture2D coracaoCheio = LoadTexture("assets/heart/full.png");
@@ -184,16 +185,16 @@ void Jogo() {
     Texture2D coracaoVazio = LoadTexture("assets/heart/empty.png");
     
     // gameover texture
-    Texture2D gameOverTexture = LoadTexture("assets/gameover.png");
+    Texture2D gameOverTexture = LoadTexture("assets/cenario/gameover.png");
 
     // fonte do hp
     Font fonte = LoadFont("assets/fonte.ttf");
 
     Portal portal = {
-        .position = (Vector2){7500, 290},  // posição próxima ao fim do mapa
+        .position = (Vector2){2500, 290},  // posição próxima ao fim do mapa
         .texture = portalTex,
         .frameRec = (Rectangle){0, 0, 32, 32},  // ajuste ao tamanho real da textura
-        .hitbox = (Rectangle){7550, 315, 32, 32},
+        .hitbox = (Rectangle){2550, 315, 32, 32},
 
         .currentFrame = 0,
         .framesCounter = 0,
@@ -213,7 +214,7 @@ void Jogo() {
         .frameRec = (Rectangle){0, 0, 32, 32}
     };
 
-    int quantidade_slimes = 6;
+    int quantidade_slimes = 1;
 
     Slime slimes[quantidade_slimes];
 
@@ -443,14 +444,7 @@ void Jogo() {
             portal.frameRec.x = portal.currentFrame * 32;
 
             if (CheckCollisionRecs(playerRect, portal.hitbox)) {
-                // Aqui você muda de fase. Por enquanto, vamos só resetar:
-                player.position = (Vector2){600, 600};
-                for (int i = 0; i < quantidade_slimes; i++) {
-                    slimes[i].position = (Vector2){1600 + i * 800, 315};
-                    slimes[i].vida = 5;
-                    slimes[i].alive = true;
-                }
-                portal.ativo = false;
+                BossMap(&player);
             }
         }
 
@@ -605,4 +599,279 @@ void Jogo() {
     UnloadTexture(knightBackAttack);
     UnloadTexture(gameOverTexture);
     UnloadTexture(portalTex);
+}
+
+void BossMap(Player* player) {
+    Texture2D backgroundTex = LoadTexture("assets/cenario/bossbg.png");
+    Texture2D groundTex = LoadTexture("assets/cenario/groundboss.png");
+
+    // player texture
+    Texture2D knightIdle = LoadTexture("assets/player/idle.png");
+
+    Texture2D knightWalk = LoadTexture("assets/player/walk.png");
+    Texture2D knightBackwalk = LoadTexture("assets/player/backwalk.png");
+    
+    Texture2D knightAttack = LoadTexture("assets/player/atack.png");
+    Texture2D knightBackAttack = LoadTexture("assets/player/backatack.png");
+
+    // heart texture
+    Texture2D coracaoCheio = LoadTexture("assets/heart/full.png");
+    Texture2D coracaoMeio  = LoadTexture("assets/heart/half.png");
+    Texture2D coracaoVazio = LoadTexture("assets/heart/empty.png");
+    
+    // gameover texture
+    Texture2D gameOverTexture = LoadTexture("assets/cenario/gameover.png");
+
+    // fonte do hp
+    Font fonte = LoadFont("assets/fonte.ttf");
+
+    player->vida = 10;
+
+    bool isGameOver = false; // gameover check
+    float playerDanoCooldown = 0;  // Tempo de espera entre danos
+    const float tempoEntreDanoPlayer = 1;  // em segundos
+    const int vidaMaxima = 10; // vida do player
+    bool isAttacking = false; // verifica se esta atacando
+    int attackFrame = 0; // frame inicial da animação de atacar
+    int attackCounter = 0; // contador do frame
+    const int attackFramesSpeed = 12; // velocidade da animação
+    Rectangle attackRec = { 0, 0, 32, 32 };  // tamanho de cada frame
+
+    const float scale = 4; // escala do jogo
+    const float gravity = 0.6; // gravidade
+    float groundY = GetScreenHeight() - groundTex.height * scale - 10; // altura do chao
+    float playerHeight = 32 * scale; // Altura do frame (32px * scale)
+
+    player->position = (Vector2){600, groundY - playerHeight};
+    player->velocityY = 0;
+    player->isJumping = false;
+
+    // Configuração da animação
+    int currentFrame = 0; // primeiro frame da animação do player
+    int framesCounter = 0; // contador do frame
+    const int framesSpeed = 8; // velocidade da animação do player
+    bool isMoving = false; // Para controlar quando animar
+
+    // tamanho do mapa
+    const float mapStart = 300; // inicio do mapa
+    const float mapEnd = 9000; // fim do mapa
+
+    Camera2D camera = { 0 };
+    camera.target = (Vector2){ player->position.x + (32 * scale)/2, 
+                              player->position.y + (32 * scale)/2 };
+    camera.offset = (Vector2){ GetScreenWidth()/2.0f, GetScreenHeight()/2.0f };
+    camera.rotation = 0.0f;
+    camera.zoom = 1.0f;
+    
+    SetTargetFPS(60); 
+    while (true) {
+    if (WindowShouldClose()) {
+        CloseWindow();
+        }
+        // Reset movimento
+        isMoving = false;
+        playerDanoCooldown -= GetFrameTime();           // diminui o tempo de cooldown a cada frame
+        if (playerDanoCooldown < 0) playerDanoCooldown = 0;
+        
+// player
+
+        // movimento player pra esquerda
+        if (IsKeyDown(KEY_A) || IsKeyDown(KEY_LEFT)) {
+            player->position.x -= player->speed;
+            player->movingRight = false;
+            isMoving = true;
+        }
+        // movimento player pra direita
+        if (IsKeyDown(KEY_D) || IsKeyDown(KEY_RIGHT)) {
+            player->position.x += player->speed;
+            player->movingRight = true;
+            isMoving = true;
+        }
+
+        // limitar movimento do player de acordo com tamanho do mapa
+        if (player->position.x < mapStart) player->position.x = mapStart;
+        if (player->position.x > mapEnd)  player->position.x = mapEnd;
+
+        // animação de ataque
+        if (IsKeyPressed(KEY_SPACE) && !isAttacking) {
+            isAttacking = true;
+            attackFrame = 0;
+            attackCounter = 0;
+            attackRec.x = 0;
+        }
+
+        // pulo
+        if ((IsKeyDown(KEY_UP) || IsKeyDown(KEY_W)) && !player->isJumping) {
+            player->velocityY = -player->jumpForce;
+            player->isJumping = true;
+        }
+
+        // gravidade
+        player->velocityY += gravity;
+        player->position.y += player->velocityY;
+
+        // colisão com o chão
+        if (player->position.y + playerHeight >= groundY) {
+            player->position.y = groundY - playerHeight;
+            player->velocityY = 0;
+            player->isJumping = false;
+        }
+
+        // Atualiza animação apenas se estiver se movendo
+        if (isMoving && !player->isJumping) {
+            framesCounter++;
+            if (framesCounter >= (60 / framesSpeed)) {
+                framesCounter = 0;
+                currentFrame++;
+                if (currentFrame > 3) currentFrame = 0;
+                player->frameRec.x = currentFrame * 32;
+            }
+
+        } 
+
+        // Reset para frame parado quando não está se movendo
+        else if (!player->isJumping){
+           currentFrame = 0;
+           player->frameRec.x = 0;
+        }
+        
+        // contador da animação de ataque
+        if (isAttacking) {
+        attackCounter++;
+            if (attackCounter >= (60 / attackFramesSpeed)) {
+                attackCounter = 0;
+                attackFrame++;
+                if (attackFrame > 3) {
+                    attackFrame = 0;
+                    isAttacking = false;
+                }
+            attackRec.x = attackFrame * 32;
+            }
+        }
+
+
+            Rectangle playerRect = {
+                player->position.x,
+                player->position.y,
+                32 * 3,
+                32 * 2
+            };
+
+            Rectangle playerAtackRect = {
+                player->position.x,
+                player->position.y,
+                32 * 5,
+                32 * 3
+            };
+            /*
+            player->vida -= 1;
+            if (player->vida < 0) player->vida = 0;
+            playerDanoCooldown = tempoEntreDanoPlayer;
+            */
+
+
+        // se a vida do Player chegar a 0 gameover
+        if (player->vida <= 0) {
+            isGameOver = true;
+        }
+
+        // Atualiza câmera
+        camera.target.x = player->position.x + (32 * scale)/2;
+        camera.target.y = player->position.y + (32 * scale)/2;
+
+        if (isGameOver) {
+            BeginDrawing();
+            ClearBackground(BLACK);
+
+            // Centraliza a imagem de game over na tela
+            DrawTexture(gameOverTexture, 
+            (GetScreenWidth() - gameOverTexture.width) / 2, 
+            (GetScreenHeight() - gameOverTexture.height) / 2, 
+            WHITE
+            );
+
+            DrawText("Pressione ENTER para reiniciar", 
+                GetScreenWidth()/2 - 200, 
+                GetScreenHeight() - 100, 
+                30, 
+                WHITE
+            );
+
+            EndDrawing();
+
+            if (IsKeyPressed(KEY_ENTER)) {
+                Jogo();
+
+                isGameOver = false;
+            }
+
+            continue; // Pula o resto do loop e volta
+        }
+
+
+        // Desenho
+        BeginDrawing();
+            ClearBackground(RAYWHITE);
+
+            BeginMode2D(camera);
+            // Desenha fundo
+            for (int i = -5; i < 25; i++) {
+                Vector2 position = { i * backgroundTex.width * scale, -1.45*groundY };
+                DrawTextureEx(backgroundTex, position, 0, scale, WHITE);
+            }
+            
+            // Desenha chão
+            for (int i = -5; i < 150; i++) {
+                Vector2 position = { i * groundTex.width * scale, groundY };
+                DrawTextureEx(groundTex, position, 0, scale, WHITE);
+            }
+
+
+            Rectangle destRec = {
+                player->position.x,
+                player->position.y,
+                32 * scale,
+                32 * scale
+            };
+            
+            
+            if (isAttacking && player->movingRight) {
+            DrawTexturePro(knightAttack, attackRec, destRec, (Vector2){0, 0}, 0.0f, WHITE);
+            }
+
+            else if (isAttacking && !player->movingRight) {
+                DrawTexturePro(knightBackAttack, attackRec, destRec, (Vector2){0, 0}, 0.0f, WHITE);
+            }
+            else if (!isMoving && !player->isJumping){
+                DrawTexturePro(knightIdle, player->frameRec, destRec, (Vector2){0, 0}, 0.0f, WHITE);
+            }
+            else {
+                if (player->movingRight){
+                    DrawTexturePro(knightWalk, player->frameRec, destRec, (Vector2){0, 0}, 0.0f, WHITE);
+                } else {
+                    DrawTexturePro(knightBackwalk, player->frameRec, destRec, (Vector2){0, 0}, 0.0f, WHITE);
+                }
+            }
+
+            EndMode2D();
+               // HUD de vida
+                int spacing = coracaoCheio.width * scale - 55; // espaçamento entre corações
+
+                                                                       
+                for (int i = 0; i < 5; i++) {
+                    float x = 20 + i * spacing;
+                    float y = 20;
+
+                    if (player->vida >= (i + 1) * 2) {
+                        DrawTextureEx(coracaoCheio, (Vector2){x, y}, 0, scale, WHITE);
+                    } else if (player->vida == (i * 2) + 1) {
+                        DrawTextureEx(coracaoMeio, (Vector2){x, y}, 0, scale, WHITE);
+                    } else {
+                        DrawTextureEx(coracaoVazio, (Vector2){x, y}, 0, scale, WHITE);
+                    }
+                }
+
+        EndDrawing();
+
+    }
 }
