@@ -9,15 +9,6 @@
 char nome[50] = {0};
 void SalvarRecorde(const char *nome, float tempoTotal);
 
-
-typedef struct Projetil {
-    Vector2 position;
-    Vector2 velocity;
-    Rectangle hitbox;
-    struct Projetil *next;
-    Texture2D texture;
-} Projetil;
-
 void AdicionarProjetil(Projetil **lista, Vector2 pos, Vector2 vel, Texture2D texture);
 void RemoverProjetil(Projetil **lista, Projetil *proj);
 
@@ -126,33 +117,6 @@ void InputName() {
     // Aqui você pode salvar o nome em uma variável global ou passar para o jogo
 }
 
-
-typedef struct {
-    Vector2 position;
-    float speed;
-    Texture2D texture;
-    Rectangle frameRec;
-    int currentFrame;
-    int framesCounter;
-    int framesSpeed;
-    bool movingRight;
-    int vida;
-    bool alive;
-} Slime;
-
-typedef struct {
-    Vector2 position;
-    Texture2D texture;
-    Rectangle frameRec;
-    Rectangle hitbox;
-   
-    int currentFrame;
-    int framesCounter;
-    int framesSpeed;
-    
-    bool ativo;
-    
-} Portal;
 
 void Jogo() {
     // Carrega as texturas

@@ -12,9 +12,9 @@ int main(void) {
         Jogo(); // começa o jogo se escolher "Iniciar"
     }
 
-   else if (escolha == 1) {
+    else if (escolha == 1) {
     MostrarRecordes();
-}
+    }
 
     CloseWindow();
     return 0;
