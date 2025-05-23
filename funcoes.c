@@ -18,6 +18,13 @@ int MostrarMenu() {
     // Carrega a imagem do título
     Texture2D menuBackground = LoadTexture("assets/cenario/menubg.png");
 
+    while (IsKeyDown(KEY_ENTER)) {
+        BeginDrawing();
+        ClearBackground(BLACK);
+        DrawText("Aguarde...", 10, 10, 20, WHITE);
+        EndDrawing();
+    }
+
     while (true) {
         if (WindowShouldClose()) return 1; // sair direto se fechar janela
 
@@ -176,7 +183,7 @@ void Jogo() {
         .frameRec = (Rectangle){0, 0, 32, 32}
     };
 
-    int quantidade_slimes = 4;
+    int quantidade_slimes = 1;
 
     Slime slimes[quantidade_slimes];
 
@@ -408,6 +415,7 @@ void Jogo() {
 
             if (CheckCollisionRecs(playerRect, portal.hitbox)) {
                 BossMap(&player, tempoJogo);
+                return;
             }
         }
 
@@ -805,7 +813,7 @@ void BossMap(Player* player,float tempoJogo) {
 
         // colisao dano do player
         if (CheckCollisionRecs(playerAtackRect, bossRect) && isAttacking && bossDanoCooldown <= 0) {
-            boss.vida -= 1;
+            boss.vida -= 10;
             bossDanoCooldown = tempoEntreDanoBoss;
 
             if (boss.vida <= 0) boss.alive = false;
@@ -876,6 +884,41 @@ void BossMap(Player* player,float tempoJogo) {
             continue; // Pula o resto do loop e volta
         }
 
+        if (!boss.alive) {
+            Texture2D youWonTexture = LoadTexture("assets/cenario/youwon.png");
+
+            while (true) {
+                BeginDrawing();
+                ClearBackground(BLACK);
+
+                DrawTexture(
+                    youWonTexture,
+                    (GetScreenWidth() - youWonTexture.width) / 2,
+                    (GetScreenHeight() - youWonTexture.height) / 2 - 50,
+                    WHITE
+                );
+
+                DrawText(
+                    "Pressione ENTER para voltar ao menu",
+                    GetScreenWidth() / 2 - MeasureText("Pressione ENTER para voltar ao menu", 30) / 2,
+                    GetScreenHeight() - 100,
+                    30,
+                    WHITE
+                );
+
+                EndDrawing();
+
+                if (IsKeyPressed(KEY_ENTER)) {
+                    UnloadTexture(youWonTexture);
+                    return; // sai da função BossMap
+                }
+
+                if (WindowShouldClose()) {
+                    CloseWindow();
+                    exit(0);
+                }
+            }
+        }
 
         // Desenho
         BeginDrawing();
@@ -957,12 +1000,6 @@ void BossMap(Player* player,float tempoJogo) {
 
         EndDrawing();
     }
-    if (!boss.alive) {
-    SalvarRecorde(nome, tempoJogo);  // tempoJogo deve ser passado como argumento
-}
-
-
-
 }
 
 void SalvarRecorde(const char *nome, float tempoTotal) {
