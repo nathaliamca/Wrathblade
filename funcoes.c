@@ -4,7 +4,22 @@
 #include <math.h>
 #include <stdio.h>   // NOVO: Para arquivos
 #include <time.h>    // NOVO: Para medir tempo (opcional)
+#include <stdlib.h>
 
+char nome[50] = {0};
+void SalvarRecorde(const char *nome, float tempoTotal);
+
+
+typedef struct Projetil {
+    Vector2 position;
+    Vector2 velocity;
+    Rectangle hitbox;
+    struct Projetil *next;
+    Texture2D texture;
+} Projetil;
+
+void AdicionarProjetil(Projetil **lista, Vector2 pos, Vector2 vel, Texture2D texture);
+void RemoverProjetil(Projetil **lista, Projetil *proj);
 
 int MostrarMenu() {
     int menuOption = 0;  // 0 = Iniciar Jogo, 1 = Sair
@@ -65,12 +80,6 @@ int MostrarMenu() {
     // Libera a textura do título ao sair
     UnloadTexture(menuBackground);
 }
-/*
-void Recordes(){
-}*/
-char nome[50] = {0};
-void SalvarRecorde(const char *nome, float tempoTotal);  // Protótipo da função
-
 
 void InputName() {
     Texture2D menuBackground = LoadTexture("assets/cenario/menubg.png");
@@ -197,10 +206,10 @@ void Jogo() {
     float tempoJogo = 0.0f;  // NOVO: Tempo acumulado desde o início da partida
 
     Portal portal = {
-        .position = (Vector2){2500, 290},  // posição próxima ao fim do mapa
+        .position = (Vector2){3700, 290},  // posição próxima ao fim do mapa
         .texture = portalTex,
         .frameRec = (Rectangle){0, 0, 32, 32},  // ajuste ao tamanho real da textura
-        .hitbox = (Rectangle){2550, 315, 32, 32},
+        .hitbox = (Rectangle){3750, 315, 32, 32},
 
         .currentFrame = 0,
         .framesCounter = 0,
@@ -220,12 +229,12 @@ void Jogo() {
         .frameRec = (Rectangle){0, 0, 32, 32}
     };
 
-    int quantidade_slimes = 1;
+    int quantidade_slimes = 4;
 
     Slime slimes[quantidade_slimes];
 
     for (int i = 0; i < quantidade_slimes; i++) {
-        slimes[i].position = (Vector2){1600 + i * 800, 315};
+        slimes[i].position = (Vector2){1600 + i * 700, 315};
         slimes[i].speed = 1.5;
         slimes[i].frameRec = (Rectangle){0, 0, 32, 32};
         slimes[i].currentFrame = 0;
@@ -612,7 +621,27 @@ void Jogo() {
     UnloadTexture(portalTex);
 }
 
+typedef struct {
+    Vector2 position;
+    Texture2D texture;
+    Rectangle frameRec;
+    int currentFrame;
+    int framesCounter;
+    int framesSpeed;
+
+    int vida;
+    bool alive;
+} Boss;
+
+
+
 void BossMap(Player* player) {
+
+    // boss
+    Texture2D bossTexture = LoadTexture("assets/boss/boss.png");
+    Texture2D texturaProjetil = LoadTexture("assets/boss/shoot.png");
+
+    // cenario 
     Texture2D backgroundTex = LoadTexture("assets/cenario/bossbg.png");
     Texture2D groundTex = LoadTexture("assets/cenario/groundboss.png");
 
@@ -636,6 +665,11 @@ void BossMap(Player* player) {
     // fonte do hp
     Font fonte = LoadFont("assets/fonte.ttf");
 
+    Projetil *listaProjetil = NULL;
+    float tempoDisparo = 0.0f;
+    const float intervaloDisparo = 2.0f;
+
+
     bool isGameOver = false; // gameover check
     float playerDanoCooldown = 0;  // Tempo de espera entre danos
     const float tempoEntreDanoPlayer = 1;  // em segundos
@@ -645,6 +679,9 @@ void BossMap(Player* player) {
     int attackCounter = 0; // contador do frame
     const int attackFramesSpeed = 12; // velocidade da animação
     Rectangle attackRec = { 0, 0, 32, 32 };  // tamanho de cada frame
+    
+    float bossDanoCooldown = 0;
+    const float tempoEntreDanoBoss = 0.5;  // meio segundo, por exemplo
 
     const float scale = 4; // escala do jogo
     const float gravity = 0.6; // gravidade
@@ -662,9 +699,20 @@ void BossMap(Player* player) {
     bool isMoving = false; // Para controlar quando animar
 
     // tamanho do mapa
-    const float mapStart = 300; // inicio do mapa
-    const float mapEnd = 3000; // fim do mapa
-
+    const float mapStart = - 500; // inicio do mapa
+    const float mapEnd = 1050; // fim do mapa
+    
+    Boss boss = {
+        .position = (Vector2){1000, groundY - 64 * scale},  // ajuste a posição
+        .texture = bossTexture,
+        .frameRec = (Rectangle){0, 0, 64, 64},  // ajuste pro tamanho correto do frame
+        .currentFrame = 0,
+        .framesCounter = 0,
+        .framesSpeed = 8,
+        .vida = 30,
+        .alive = true
+    };
+    
     Camera2D camera = { 0 };
     camera.target = (Vector2){ player->position.x + (32 * scale)/2, 
                               player->position.y + (32 * scale)/2 };
@@ -758,26 +806,91 @@ void BossMap(Player* player) {
             }
         }
 
+        if (boss.alive) {
+            
+            boss.framesCounter++;
+            bossDanoCooldown -= GetFrameTime();
 
-            Rectangle playerRect = {
-                player->position.x,
-                player->position.y,
-                32 * 3,
-                32 * 2
-            };
+            if (bossDanoCooldown < 0) bossDanoCooldown = 0;
 
-            Rectangle playerAtackRect = {
-                player->position.x,
-                player->position.y,
-                32 * 5,
-                32 * 3
-            };
-            /*
-            player->vida -= 1;
+            if (boss.framesCounter >= (60 / boss.framesSpeed)) {
+                boss.framesCounter = 0;
+                boss.currentFrame++;
+                if (boss.currentFrame > 5) boss.currentFrame = 0;
+                boss.frameRec.x = boss.currentFrame * boss.frameRec.width;
+            }
+
+            tempoDisparo += GetFrameTime();
+                if (tempoDisparo >= intervaloDisparo) {
+                    Vector2 origem = { boss.position.x, boss.position.y + 128 };
+                    Vector2 velocidade = { -5, 0 };
+                    AdicionarProjetil(&listaProjetil, origem, velocidade, texturaProjetil);
+                    tempoDisparo = 0.0f;
+                }
+        }
+        
+        Rectangle playerRect = {
+            player->position.x,
+            player->position.y,
+            32 * 3,
+            32 * 2
+        };
+
+        Rectangle playerAtackRect = {
+            player->position.x,
+            player->position.y,
+            32 * 6,
+            32 * 3
+        };
+        
+        Rectangle bossRect = {
+            boss.position.x,
+            boss.position.y,
+            64 * 1,
+            64 * 4
+        };
+
+        // colisao dano do boss
+        if (CheckCollisionRecs(playerRect, bossRect) && playerDanoCooldown <= 0) {
+            player->vida -= 2;
             if (player->vida < 0) player->vida = 0;
             playerDanoCooldown = tempoEntreDanoPlayer;
-            */
+        }
 
+        // colisao dano do player
+        if (CheckCollisionRecs(playerAtackRect, bossRect) && isAttacking && bossDanoCooldown <= 0) {
+            boss.vida -= 1;
+            bossDanoCooldown = tempoEntreDanoBoss;
+
+            if (boss.vida <= 0) boss.alive = false;
+        }
+
+        Projetil *atual = listaProjetil;            
+        while (atual != NULL) {
+            atual->position.x += atual->velocity.x;
+            atual->hitbox.x = atual->position.x;
+            atual->hitbox.y = atual->position.y;
+
+            if (atual->position.x < 0 || atual->position.x > GetScreenWidth()) {
+                Projetil *remover = atual;
+                atual = atual->next;
+                RemoverProjetil(&listaProjetil, remover);
+                continue;
+            }
+
+            if (CheckCollisionRecs(atual->hitbox, playerRect) && playerDanoCooldown <= 0) {
+                player->vida -= 2;
+                if (player->vida < 0) player->vida = 0;
+                playerDanoCooldown = tempoEntreDanoPlayer;
+
+                Projetil *remover = atual;
+                atual = atual->next;
+                RemoverProjetil(&listaProjetil, remover);
+                continue;
+            }
+
+            atual = atual->next;
+        }
 
         // se a vida do Player chegar a 0 gameover
         if (player->vida <= 0) {
@@ -830,7 +943,7 @@ void BossMap(Player* player) {
             }
             
             // Desenha chão
-            for (int i = -5; i < 150; i++) {
+            for (int i = -25; i < 150; i++) {
                 Vector2 position = { i * groundTex.width * scale, groundY };
                 DrawTextureEx(groundTex, position, 0, scale, WHITE);
             }
@@ -862,6 +975,22 @@ void BossMap(Player* player) {
                 }
             }
 
+            if (boss.alive) {
+                Rectangle destRec = {
+                    boss.position.x - 50, boss.position.y - 170,
+                    boss.frameRec.width * 7.5,
+                    boss.frameRec.height * 7.5
+                };
+                DrawTexturePro(boss.texture, boss.frameRec, destRec, (Vector2){0, 0}, 0.0f, WHITE);
+            
+                DrawTextEx(fonte, TextFormat("BOSS HP: %d", boss.vida),(Vector2){player->position.x, player->position.y -500}, 50, 2, RED);
+            }   
+
+            for (Projetil *p = listaProjetil; p != NULL; p = p->next) {
+                DrawTextureEx(p->texture, p->position, 0, 1, WHITE);
+            }
+
+
             EndMode2D();
                // HUD de vida
                 int spacing = coracaoCheio.width * scale - 55; // espaçamento entre corações
@@ -881,9 +1010,9 @@ void BossMap(Player* player) {
                 }
 
         EndDrawing();
-
     }
 }
+
 void SalvarRecorde(const char *nome, float tempoTotal) {
     FILE *arquivo = fopen("recordes.txt", "a");
     if (arquivo != NULL) {
@@ -891,5 +1020,37 @@ void SalvarRecorde(const char *nome, float tempoTotal) {
         fclose(arquivo);
     } else {
         printf("Erro ao abrir o arquivo de recordes.\n");
+    }
+}
+
+void AdicionarProjetil(Projetil **lista, Vector2 pos, Vector2 vel, Texture2D texture) {
+    Projetil *novo = malloc(sizeof(Projetil));
+    if (novo == NULL) return;
+
+    novo->position = pos;
+    novo->velocity = vel;
+    novo->hitbox = (Rectangle){ pos.x, pos.y, 16, 16 };
+    novo->texture = texture;
+    novo->next = *lista;
+    *lista = novo;
+}
+
+
+void RemoverProjetil(Projetil **lista, Projetil *proj) {
+    if (*lista == NULL || proj == NULL) return;
+
+    if (*lista == proj) {
+        *lista = proj->next;
+        free(proj);
+        return;
+    }
+
+    Projetil *anterior = *lista;
+    while (anterior->next && anterior->next != proj)
+        anterior = anterior->next;
+
+    if (anterior->next == proj) {
+        anterior->next = proj->next;
+        free(proj);
     }
 }
