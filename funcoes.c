@@ -126,22 +126,6 @@ void InputName() {
     // Aqui você pode salvar o nome em uma variável global ou passar para o jogo
 }
 
-typedef struct {
-    Vector2 position;
-    Texture2D texture;
-    Rectangle frameRec;
-
-    int currentFrame;
-    int framesCounter;
-    int framesSpeed;
-
-    float speed;
-    float jumpForce;
-    float velocityY;
-    bool isJumping;
-    bool movingRight;
-    int vida;
-} Player;
 
 typedef struct {
     Vector2 position;
@@ -170,7 +154,6 @@ typedef struct {
     
 } Portal;
 
-void BossMap(Player* player);
 void Jogo() {
     // Carrega as texturas
     Texture2D portalTex = LoadTexture("assets/cenario/portal.png");
@@ -460,7 +443,7 @@ void Jogo() {
             portal.frameRec.x = portal.currentFrame * 32;
 
             if (CheckCollisionRecs(playerRect, portal.hitbox)) {
-                BossMap(&player);
+                BossMap(&player, tempoJogo);
             }
         }
 
@@ -489,7 +472,6 @@ void Jogo() {
             EndDrawing();
 
             if (IsKeyPressed(KEY_ENTER)) {
-                SalvarRecorde(nome, tempoJogo);  // NOVO: Salva nome e tempo no arquivo
                 tempoJogo = 0.0f;                // Reseta tempo para próxima partida
 
                 // Reinicia o jogo
@@ -635,7 +617,7 @@ typedef struct {
 
 
 
-void BossMap(Player* player) {
+void BossMap(Player* player,float tempoJogo) {
 
     // boss
     Texture2D bossTexture = LoadTexture("assets/boss/boss.png");
@@ -1011,6 +993,12 @@ void BossMap(Player* player) {
 
         EndDrawing();
     }
+    if (!boss.alive) {
+    SalvarRecorde(nome, tempoJogo);  // tempoJogo deve ser passado como argumento
+}
+
+
+
 }
 
 void SalvarRecorde(const char *nome, float tempoTotal) {
