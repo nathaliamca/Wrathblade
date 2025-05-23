@@ -5,16 +5,20 @@ int main(void) {
     InitWindow(1280, 960, "WRATHBLADE");
     SetTargetFPS(60);
 
-    int escolha = MostrarMenu();  // chama o menu
+    while (!WindowShouldClose()) {
+        int escolha = MostrarMenu();  // mostra o menu e retorna a escolha
 
-    if (escolha == 0) {
-        InputName();
-        Jogo(); // começa o jogo se escolher "Iniciar"
+        if (escolha == 0) {
+            InputName();
+            Jogo(); // inicia o jogo
+        }
+        else if (escolha == 1) {
+            MostrarRecordes(); // mostra os recordes
+        }
+        else if (escolha == 2) {
+            break; // sair do loop
+        }
     }
-
-   else if (escolha == 1) {
-    MostrarRecordes();
-}
 
     CloseWindow();
     return 0;
