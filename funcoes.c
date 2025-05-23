@@ -1022,6 +1022,36 @@ void SalvarRecorde(const char *nome, float tempoTotal) {
         printf("Erro ao abrir o arquivo de recordes.\n");
     }
 }
+void MostrarRecordes() {
+    FILE *arquivo = fopen("recordes.txt", "r");
+    char linha[100];
+
+    while (!WindowShouldClose()) {
+        BeginDrawing();
+        ClearBackground(BLACK);
+
+        DrawText("Recordes", 100, 50, 40, WHITE);
+
+        if (arquivo) {
+            int y = 120;
+            rewind(arquivo);
+            while (fgets(linha, sizeof(linha), arquivo)) {
+                DrawText(linha, 100, y, 30, WHITE);
+                y += 40;
+            }
+        } else {
+            DrawText("Nenhum recorde encontrado.", 100, 120, 30, WHITE);
+        }
+
+        DrawText("Pressione ESC para voltar", 100, GetScreenHeight() - 50, 20, WHITE);
+        EndDrawing();
+
+        if (IsKeyPressed(KEY_ESCAPE)) break;
+    }
+
+    if (arquivo) fclose(arquivo);
+}
+
 
 void AdicionarProjetil(Projetil **lista, Vector2 pos, Vector2 vel, Texture2D texture) {
     Projetil *novo = malloc(sizeof(Projetil));

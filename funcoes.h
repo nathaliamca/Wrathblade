@@ -5,6 +5,8 @@
 int MostrarMenu();  // declara a função para ser usada em outros arquivos
 void InputName();
 void Jogo();
+void MostrarRecordes();
+
 
 // void Recordes();
 
