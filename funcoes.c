@@ -707,7 +707,7 @@ void BossMap(Player* player,float tempoJogo) {
         .currentFrame = 0,
         .framesCounter = 0,
         .framesSpeed = 8,
-        .vida = 30,
+        .vida = 1,
         .alive = true
     };
     
@@ -994,9 +994,6 @@ void BossMap(Player* player,float tempoJogo) {
                     return; // <-- Aqui garante que a função BossMap acabe de verdade
                 }
             }
-
-            UnloadTexture(youWonTexture);
-            return; // segurança adicional caso a janela feche
         }
 
         // Desenho

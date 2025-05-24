@@ -1,5 +1,8 @@
 #include "raylib.h"
 #include "funcoes.h"
+#include <string.h>
+extern char nome[50];
+
 
 int main(void) {
     InitWindow(1280, 960, "WRATHBLADE");
@@ -15,6 +18,8 @@ int main(void) {
             int resultado = InputName();
             if (resultado == 0) {
                 Jogo();  // prossegue
+                memset(nome, 0, sizeof(nome));
+
             } else {
                 // voltou ao menu, reexibe o menu
                 escolha = MostrarMenu();
