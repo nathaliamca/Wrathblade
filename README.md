@@ -60,7 +60,7 @@ Para começar, clone o repositório do **Wrathblade**:
 
 git clone https://github.com/nathaliamca/Wrathblade.git
 
-logo após abra o vscode com o projeto e clice em "Wrathblade.exe"
+logo após abra o vscode com o projeto e clique em "Wrathblade.exe"
 
 
 **prontinho para ser jogado!**
