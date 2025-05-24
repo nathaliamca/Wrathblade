@@ -15,6 +15,9 @@ int MostrarMenu() {
     // Carrega a imagem do título
     Texture2D menuBackground = LoadTexture("assets/cenario/menubg.png");
 
+    Music musicaMenu = LoadMusicStream("assets/som/menu.wav");
+    PlayMusicStream(musicaMenu);
+
     while (IsKeyDown(KEY_ENTER)) {
         BeginDrawing();
         ClearBackground(BLACK);
@@ -23,6 +26,9 @@ int MostrarMenu() {
     }
 
     while (true) {
+
+        UpdateMusicStream(musicaMenu);
+
         if (WindowShouldClose()) return 1; // sair direto se fechar janela
 
         // Controle das opções de menu com as teclas UP e DOWN
@@ -72,20 +78,27 @@ int MostrarMenu() {
 
         EndDrawing();
     }
+    StopMusicStream(musicaMenu);
+    UnloadMusicStream(musicaMenu);
 
-   
+    UnloadTexture(menuBackground);
 }
 
 int InputName() {
     Texture2D menuBackground = LoadTexture("assets/cenario/menubg.png");
 
+    Music musicaMenu = LoadMusicStream("assets/som/menu.wav");
+    PlayMusicStream(musicaMenu); 
+    
     int screenWidth = GetScreenWidth();
     int screenHeight = GetScreenHeight();
-
+    
     int length = 0;
-
+    
     while (!WindowShouldClose()) {
         // Captura o texto digitado
+        UpdateMusicStream(musicaMenu);
+
         int key = GetCharPressed();
         while (key > 0) {
             if ((key >= 32) && (key <= 125) && (length < 49)) {
@@ -110,7 +123,10 @@ int InputName() {
 
         // Confirmar nome com ENTER
         if (IsKeyPressed(KEY_ENTER) && length > 0) {
-            UnloadTexture(menuBackground);
+            UnloadTexture(menuBackground); 
+            StopMusicStream(musicaMenu);
+            UnloadMusicStream(musicaMenu);
+
             return 0;  // Código para "confirmado"
         }
 
@@ -126,7 +142,7 @@ int InputName() {
         EndDrawing();
     }
 
-    UnloadTexture(menuBackground);
+
     return 1;  // Caso a janela seja fechada
 }
 
@@ -159,15 +175,17 @@ void Jogo() {
     // gameover texture
     Texture2D gameOverTexture = LoadTexture("assets/cenario/gameover.png");
 
-        Sound somPulo = LoadSound("assets/som/pulo.wav");
-        Sound somAtaque = LoadSound("assets/som/ataque.wav");
-        Sound somSlimeMorte = LoadSound("assets/som/morte_slime.wav");
+    Music musicaJogo = LoadMusicStream("assets/som/jogo.wav");
+    PlayMusicStream(musicaJogo); 
 
+    Sound somPulo = LoadSound("assets/som/pulo.wav");
+    Sound somAtaque = LoadSound("assets/som/ataque.wav");
+    Sound somSlimeMorte = LoadSound("assets/som/morte_slime.wav");
 
     // fonte do hp
     Font fonte = LoadFont("assets/fonte.ttf");
 
-    float tempoJogo = 0.0f;  // NOVO: Tempo acumulado desde o início da partida
+    float tempoJogo = 0.0f;  // tempo acumulado desde o início da partida
 
     Portal portal = {
         .position = (Vector2){3700, 290},  // posição próxima ao fim do mapa
@@ -193,7 +211,7 @@ void Jogo() {
         .frameRec = (Rectangle){0, 0, 32, 32}
     };
 
-    int quantidade_slimes = 1;
+    int quantidade_slimes = 4;
 
     Slime slimes[quantidade_slimes];
 
@@ -246,7 +264,10 @@ void Jogo() {
     
     SetTargetFPS(60); 
     while (!WindowShouldClose()) {
-        tempoJogo += GetFrameTime();  // NOVO: Soma o tempo de cada frame
+
+        UpdateMusicStream(musicaJogo);
+
+        tempoJogo += GetFrameTime(); // Soma o tempo de cada frame
         // Reset movimento
         isMoving = false;
         playerDanoCooldown -= GetFrameTime();           // diminui o tempo de cooldown a cada frame
@@ -287,7 +308,7 @@ void Jogo() {
         if ((IsKeyDown(KEY_UP) || IsKeyDown(KEY_W)) && !player.isJumping) {
             player.velocityY = -player.jumpForce;
             player.isJumping = true;
-            PlaySound(somPulo);  // 🔊 TOCA SOM DE PULO AQUI
+            PlaySound(somPulo);
         }
 
         // gravidade
@@ -590,6 +611,9 @@ void Jogo() {
     UnloadSound(somPulo);
     UnloadSound(somAtaque);
     UnloadSound(somSlimeMorte);
+    StopMusicStream(musicaJogo);
+    UnloadMusicStream(musicaJogo);
+
     
 }
 
@@ -620,7 +644,11 @@ void BossMap(Player* player,float tempoJogo) {
     // gameover texture
     Texture2D gameOverTexture = LoadTexture("assets/cenario/gameover.png");
 
-        Sound somAtaque = LoadSound("assets/som/ataque.wav");
+    Sound somAtaque = LoadSound("assets/som/ataque.wav");
+    Sound somPulo = LoadSound("assets/som/pulo.wav");
+    Music musicaBoss = LoadMusicStream("assets/som/bossfight.wav");
+    PlayMusicStream(musicaBoss);
+
 
     // fonte do hp
     Font fonte = LoadFont("assets/fonte.ttf");
@@ -682,9 +710,12 @@ void BossMap(Player* player,float tempoJogo) {
     
     SetTargetFPS(60); 
     while (true) {
-    if (WindowShouldClose()) {
+        if (WindowShouldClose()) {
         return;
         }
+
+        UpdateMusicStream(musicaBoss);
+
         // Reset movimento
         isMoving = false;
         playerDanoCooldown -= GetFrameTime();           // diminui o tempo de cooldown a cada frame
@@ -722,6 +753,7 @@ void BossMap(Player* player,float tempoJogo) {
         if ((IsKeyDown(KEY_UP) || IsKeyDown(KEY_W)) && !player->isJumping) {
             player->velocityY = -player->jumpForce;
             player->isJumping = true;
+            PlaySound(somPulo);
         }
 
         // gravidade
@@ -820,7 +852,7 @@ void BossMap(Player* player,float tempoJogo) {
 
         // colisao dano do player
         if (CheckCollisionRecs(playerAtackRect, bossRect) && isAttacking && bossDanoCooldown <= 0) {
-            boss.vida -= 10;
+            boss.vida -= 1;
             bossDanoCooldown = tempoEntreDanoBoss;
 
             if (boss.vida <= 0) boss.alive = false;
@@ -893,7 +925,7 @@ void BossMap(Player* player,float tempoJogo) {
 
         if (!boss.alive) {
             Texture2D youWonTexture = LoadTexture("assets/cenario/youwon.png");
-            
+
             Recorde* lista = carregarRecordesDoArquivo(); // ← agora carrega do arquivo
             lista = adicionarRecorde(lista, nome, tempoJogo);
             ordenarListaPorTempo(lista);
@@ -1027,6 +1059,9 @@ void BossMap(Player* player,float tempoJogo) {
 
         EndDrawing();
     }
+    StopMusicStream(musicaBoss);
+    UnloadMusicStream(musicaBoss);
+
 }
 
 void SalvarRecorde(const char *nome, float tempoTotal) {

@@ -71,8 +71,7 @@ typedef struct Projetil {
     Texture2D texture;
 } Projetil;
 
-
-int MostrarMenu();  // declara a função para ser usada em outros arquivos
+int MostrarMenu();
 int InputName();
 void Jogo();
 void MostrarRecordes();
