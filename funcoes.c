@@ -188,10 +188,10 @@ void Jogo() {
     float tempoJogo = 0.0f;  // tempo acumulado desde o início da partida
 
     Portal portal = {
-        .position = (Vector2){3700, 290},  // posição próxima ao fim do mapa
+        .position = (Vector2){3900, 290},  // posição próxima ao fim do mapa
         .texture = portalTex,
         .frameRec = (Rectangle){0, 0, 32, 32},  // ajuste ao tamanho real da textura
-        .hitbox = (Rectangle){3750, 315, 32, 32},
+        .hitbox = (Rectangle){3950, 315, 32, 32},
 
         .currentFrame = 0,
         .framesCounter = 0,
@@ -253,7 +253,7 @@ void Jogo() {
 
     // tamanho do mapa
     const float mapStart = 300; // inicio do mapa
-    const float mapEnd = 9000; // fim do mapa
+    const float mapEnd = 8000; // fim do mapa
 
     Camera2D camera = { 0 };
     camera.target = (Vector2){ player.position.x + (32 * scale)/2, 
@@ -471,11 +471,17 @@ void Jogo() {
 
             DrawText("Pressione ENTER para reiniciar", 
                 GetScreenWidth()/2 - 200, 
-                GetScreenHeight() - 100, 
+                GetScreenHeight() - 150, 
                 30, 
                 WHITE
             );
 
+            DrawText("Pressione ESC para voltar ao menu", 
+                GetScreenWidth()/2 - 200, 
+                GetScreenHeight() - 100, 
+                20, 
+                WHITE
+            );
             EndDrawing();
 
             if (IsKeyPressed(KEY_ENTER)) {
@@ -495,6 +501,10 @@ void Jogo() {
                 }
 
                 isGameOver = false;
+            }
+
+            if (IsKeyPressed(KEY_ESCAPE)) {
+                return;
             }
 
             continue; // Pula o resto do loop e volta
@@ -837,9 +847,9 @@ void BossMap(Player* player,float tempoJogo) {
         };
         
         Rectangle bossRect = {
-            boss.position.x,
+            boss.position.x + 32,
             boss.position.y,
-            64 * 1,
+            64 * 2,
             64 * 4
         };
 
@@ -855,7 +865,10 @@ void BossMap(Player* player,float tempoJogo) {
             boss.vida -= 1;
             bossDanoCooldown = tempoEntreDanoBoss;
 
-            if (boss.vida <= 0) boss.alive = false;
+            if (boss.vida <= 0) {
+                boss.alive = false;
+                isGameOver = false;
+            }
         }
 
         Projetil *atual = listaProjetil;            
@@ -907,8 +920,16 @@ void BossMap(Player* player,float tempoJogo) {
 
             DrawText("Pressione ENTER para reiniciar", 
                 GetScreenWidth()/2 - 200, 
-                GetScreenHeight() - 100, 
+                GetScreenHeight() - 150, 
                 30, 
+                WHITE
+            );
+
+            
+            DrawText("Pressione ESC para voltar ao menu", 
+                GetScreenWidth()/2 - 200, 
+                GetScreenHeight() - 100, 
+                20, 
                 WHITE
             );
 
@@ -920,13 +941,18 @@ void BossMap(Player* player,float tempoJogo) {
                 isGameOver = false;
             }
 
+            if (IsKeyPressed(KEY_ESCAPE)) {
+                return;
+            }
+
             continue; // Pula o resto do loop e volta
         }
+
 
         if (!boss.alive) {
             Texture2D youWonTexture = LoadTexture("assets/cenario/youwon.png");
 
-            Recorde* lista = carregarRecordesDoArquivo(); // ← agora carrega do arquivo
+            Recorde* lista = carregarRecordesDoArquivo();
             lista = adicionarRecorde(lista, nome, tempoJogo);
             ordenarListaPorTempo(lista);
 
@@ -939,25 +965,21 @@ void BossMap(Player* player,float tempoJogo) {
             for (int i = 0; i < quantidade; i++) free(nomes[i]);
             free(nomes);
             free(tempos);
-
             while (lista) {
                 Recorde* temp = lista;
                 lista = lista->next;
                 free(temp);
             }
 
-            bool terminouVitoria = false;
-            while (!terminouVitoria && !WindowShouldClose()) {
+            while (!WindowShouldClose()) {
                 BeginDrawing();
                 ClearBackground(BLACK);
-
                 DrawTexture(
                     youWonTexture,
                     (GetScreenWidth() - youWonTexture.width) / 2,
                     (GetScreenHeight() - youWonTexture.height) / 2 - 50,
                     WHITE
                 );
-
                 DrawText(
                     "Pressione ENTER para voltar ao menu",
                     GetScreenWidth() / 2 - MeasureText("Pressione ENTER para voltar ao menu", 30) / 2,
@@ -965,18 +987,14 @@ void BossMap(Player* player,float tempoJogo) {
                     30,
                     WHITE
                 );
-
                 EndDrawing();
 
                 if (IsKeyPressed(KEY_ENTER)) {
-                    terminouVitoria = true;
+                    UnloadTexture(youWonTexture);
+                    return; // <-- Aqui garante que a função BossMap acabe de verdade
                 }
             }
-
-            UnloadTexture(youWonTexture);
-            return; // <-- Esse é essencial para evitar o bug
-
-                    }
+        }
 
         // Desenho
         BeginDrawing();
