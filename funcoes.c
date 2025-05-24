@@ -159,6 +159,13 @@ void Jogo() {
     // gameover texture
     Texture2D gameOverTexture = LoadTexture("assets/cenario/gameover.png");
 
+    InitAudioDevice(); // Inicia o sistema de som
+
+        Sound somPulo = LoadSound("assets/som/pulo.wav");
+        Sound somAtaque = LoadSound("assets/som/ataque.wav");
+        Sound somSlimeMorte = LoadSound("assets/som/morte_slime.wav");
+
+
     // fonte do hp
     Font fonte = LoadFont("assets/fonte.ttf");
 
@@ -274,12 +281,15 @@ void Jogo() {
             attackFrame = 0;
             attackCounter = 0;
             attackRec.x = 0;
+            PlaySound(somAtaque);  
+
         }
 
         // pulo
         if ((IsKeyDown(KEY_UP) || IsKeyDown(KEY_W)) && !player.isJumping) {
             player.velocityY = -player.jumpForce;
             player.isJumping = true;
+            PlaySound(somPulo);  // 🔊 TOCA SOM DE PULO AQUI
         }
 
         // gravidade
@@ -382,6 +392,7 @@ void Jogo() {
 
             if (slimes[i].vida <= 0) {
                 slimes[i].alive = false;
+                PlaySound(somSlimeMorte); 
             }
         }
 
@@ -578,6 +589,11 @@ void Jogo() {
     UnloadTexture(knightBackAttack);
     UnloadTexture(gameOverTexture);
     UnloadTexture(portalTex);
+    UnloadSound(somPulo);
+    UnloadSound(somAtaque);
+    UnloadSound(somSlimeMorte);
+    CloseAudioDevice(); 
+
 }
 
 void BossMap(Player* player,float tempoJogo) {
@@ -606,6 +622,10 @@ void BossMap(Player* player,float tempoJogo) {
     
     // gameover texture
     Texture2D gameOverTexture = LoadTexture("assets/cenario/gameover.png");
+
+    InitAudioDevice(); 
+
+        Sound somAtaque = LoadSound("assets/som/ataque.wav");
 
     // fonte do hp
     Font fonte = LoadFont("assets/fonte.ttf");
@@ -668,6 +688,8 @@ void BossMap(Player* player,float tempoJogo) {
     SetTargetFPS(60); 
     while (true) {
     if (WindowShouldClose()) {
+        UnloadSound(somAtaque);
+            CloseAudioDevice();
         CloseWindow();
         }
         // Reset movimento
@@ -700,6 +722,7 @@ void BossMap(Player* player,float tempoJogo) {
             attackFrame = 0;
             attackCounter = 0;
             attackRec.x = 0;
+            PlaySound(somAtaque);
         }
 
         // pulo
