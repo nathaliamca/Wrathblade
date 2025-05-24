@@ -697,7 +697,7 @@ void BossMap(Player* player,float tempoJogo) {
         .currentFrame = 0,
         .framesCounter = 0,
         .framesSpeed = 8,
-        .vida = 1,
+        .vida = 30,
         .alive = true
     };
     
