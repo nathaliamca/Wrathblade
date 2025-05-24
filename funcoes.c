@@ -2,15 +2,11 @@
 #include "raylib.h"
 #include "funcoes.h"
 #include <math.h>
-#include <stdio.h>   // NOVO: Para arquivos
-#include <time.h>    // NOVO: Para medir tempo (opcional)
+#include <stdio.h>   
+#include <time.h>  
 #include <stdlib.h>
 
 char nome[50] = {0};
-void SalvarRecorde(const char *nome, float tempoTotal);
-
-void AdicionarProjetil(Projetil **lista, Vector2 pos, Vector2 vel, Texture2D texture);
-void RemoverProjetil(Projetil **lista, Projetil *proj);
 
 int MostrarMenu() {
     int menuOption = 0;  // 0 = Iniciar Jogo, 1 = Sair
@@ -78,13 +74,12 @@ int MostrarMenu() {
     // Libera a textura do título ao sair
     UnloadTexture(menuBackground);
 }
-
-void InputName() {
+int InputName() {
     Texture2D menuBackground = LoadTexture("assets/cenario/menubg.png");
-    
+
     int screenWidth = GetScreenWidth();
     int screenHeight = GetScreenHeight();
-    
+
     int length = 0;
 
     while (!WindowShouldClose()) {
@@ -105,6 +100,18 @@ void InputName() {
             nome[length] = '\0';
         }
 
+        // Retornar ao menu com ESC
+        if (IsKeyPressed(KEY_ESCAPE)) {
+            UnloadTexture(menuBackground);
+            return 1;  // Código para "voltar ao menu"
+        }
+
+        // Confirmar nome com ENTER
+        if (IsKeyPressed(KEY_ENTER) && length > 0) {
+            UnloadTexture(menuBackground);
+            return 0;  // Código para "confirmado"
+        }
+
         BeginDrawing();
         ClearBackground(RAYWHITE);
         Rectangle destRect = {0, 0, (float)screenWidth, (float)screenHeight};
@@ -113,16 +120,14 @@ void InputName() {
         DrawText("Digite seu nome:", 300, 300, 30, WHITE);
         DrawText(nome, 300, 340, 40, WHITE);
         DrawText("Pressione ENTER para continuar", 300, 400, 30, WHITE);
+        DrawText("Pressione ESC para voltar ao menu", 300, 440, 20, WHITE);
         EndDrawing();
-
-        // Confirmar nome com ENTER
-        if (IsKeyPressed(KEY_ENTER) && length > 0) {
-            break;  // sai do loop e retorna para main
-        }
     }
 
-    // Aqui você pode salvar o nome em uma variável global ou passar para o jogo
+    UnloadTexture(menuBackground);
+    return 1;  // Caso a janela seja fechada
 }
+
 
 
 void Jogo() {
@@ -236,7 +241,7 @@ void Jogo() {
     
     SetTargetFPS(60); 
     while (!WindowShouldClose()) {
-         tempoJogo += GetFrameTime();  // NOVO: Soma o tempo de cada frame
+        tempoJogo += GetFrameTime();  // NOVO: Soma o tempo de cada frame
         // Reset movimento
         isMoving = false;
         playerDanoCooldown -= GetFrameTime();           // diminui o tempo de cooldown a cada frame
