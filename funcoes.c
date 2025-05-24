@@ -697,7 +697,7 @@ void BossMap(Player* player,float tempoJogo) {
         .currentFrame = 0,
         .framesCounter = 0,
         .framesSpeed = 8,
-        .vida = 30,
+        .vida = 1,
         .alive = true
     };
     
@@ -946,7 +946,8 @@ void BossMap(Player* player,float tempoJogo) {
                 free(temp);
             }
 
-            while (true) {
+            bool terminouVitoria = false;
+            while (!terminouVitoria && !WindowShouldClose()) {
                 BeginDrawing();
                 ClearBackground(BLACK);
 
@@ -968,16 +969,14 @@ void BossMap(Player* player,float tempoJogo) {
                 EndDrawing();
 
                 if (IsKeyPressed(KEY_ENTER)) {
-                    UnloadTexture(youWonTexture);
-                    return; // sai da função BossMap
-                }
-
-                if (WindowShouldClose()) {
-                    CloseWindow();
-                    exit(0);
+                    terminouVitoria = true;
                 }
             }
-        }
+
+            UnloadTexture(youWonTexture);
+            return; // <-- Esse é essencial para evitar o bug
+
+                    }
 
         // Desenho
         BeginDrawing();
