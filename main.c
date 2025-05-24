@@ -3,6 +3,7 @@
 
 int main(void) {
     InitWindow(1280, 960, "WRATHBLADE");
+    InitAudioDevice(); 
     SetTargetFPS(60);
 
     SetExitKey(0);
@@ -27,7 +28,7 @@ int main(void) {
             break; // sair do loop
         }
     }
-
+    CloseAudioDevice(); 
     CloseWindow();
     return 0;
 }

@@ -31,7 +31,8 @@ int MostrarMenu() {
 
         // Ação ao pressionar ENTER
         if (IsKeyPressed(KEY_ENTER)) {
-
+            // Libera a textura do título ao sair
+            UnloadTexture(menuBackground);
             return menuOption; // 0 = Iniciar, 1 = Recordes, 2 = Sair
         }
 
@@ -72,8 +73,7 @@ int MostrarMenu() {
         EndDrawing();
     }
 
-    // Libera a textura do título ao sair
-    UnloadTexture(menuBackground);
+   
 }
 
 int InputName() {
@@ -158,8 +158,6 @@ void Jogo() {
     
     // gameover texture
     Texture2D gameOverTexture = LoadTexture("assets/cenario/gameover.png");
-
-    InitAudioDevice(); // Inicia o sistema de som
 
         Sound somPulo = LoadSound("assets/som/pulo.wav");
         Sound somAtaque = LoadSound("assets/som/ataque.wav");
@@ -592,8 +590,7 @@ void Jogo() {
     UnloadSound(somPulo);
     UnloadSound(somAtaque);
     UnloadSound(somSlimeMorte);
-    CloseAudioDevice(); 
-
+    
 }
 
 void BossMap(Player* player,float tempoJogo) {
@@ -622,8 +619,6 @@ void BossMap(Player* player,float tempoJogo) {
     
     // gameover texture
     Texture2D gameOverTexture = LoadTexture("assets/cenario/gameover.png");
-
-    InitAudioDevice(); 
 
         Sound somAtaque = LoadSound("assets/som/ataque.wav");
 
@@ -688,9 +683,7 @@ void BossMap(Player* player,float tempoJogo) {
     SetTargetFPS(60); 
     while (true) {
     if (WindowShouldClose()) {
-        UnloadSound(somAtaque);
-            CloseAudioDevice();
-        CloseWindow();
+        return;
         }
         // Reset movimento
         isMoving = false;
