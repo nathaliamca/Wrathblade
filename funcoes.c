@@ -9,6 +9,97 @@
 
 char nome[50] = {0};
 
+Recorde* adicionarRecorde(Recorde* lista, const char* nome, float time) {
+    Recorde* novo = (Recorde*)malloc(sizeof(Recorde));
+    if (!novo) exit(1);
+    strcpy(novo->nome, nome);
+    novo->time = time;
+    novo->next = lista;
+    return novo;
+}
+
+void ordenarListaPorTempo(Recorde* lista) {
+    if (!lista) return;
+    int trocou;
+    Recorde *atual;
+    Recorde *limite = NULL;
+    do {
+        trocou = 0;
+        atual = lista;
+        while (atual->next != limite) {
+            if (atual->time > atual->next->time) {
+                char tempNome[50];
+                float tempTime;
+                strcpy(tempNome, atual->nome);
+                tempTime = atual->time;
+                strcpy(atual->nome, atual->next->nome);
+                atual->time = atual->next->time;
+                strcpy(atual->next->nome, tempNome);
+                atual->next->time = tempTime;
+                trocou = 1;
+            }
+            atual = atual->next;
+        }
+        limite = atual;
+    } while (trocou);
+}
+
+void converterListaParaMatriz(Recorde* lista, char*** nomes, float** tempos, int* quantidade) {
+    int count = 0;
+    Recorde* atual = lista;
+    while (atual) {
+        count++;
+        atual = atual->next;
+    }
+    *nomes = (char**)malloc(count * sizeof(char*));
+    *tempos = (float*)malloc(count * sizeof(float));
+    if (!*nomes || !*tempos) exit(1);
+    atual = lista;
+    for (int i = 0; i < count; i++) {
+        (*nomes)[i] = (char*)malloc(50 * sizeof(char));
+        strcpy((*nomes)[i], atual->nome);
+        (*tempos)[i] = atual->time;
+        atual = atual->next;
+    }
+    *quantidade = count;
+}
+
+Recorde* carregarRecordesDoArquivo() {
+    FILE* arquivo = fopen("ranking.txt", "r");
+    if (!arquivo) return NULL;
+
+    Recorde* lista = NULL;
+    char linha[100];
+    int pos;
+    char nome[50];
+    float tempo;
+
+    // pula cabeçalho (2 linhas)
+    fgets(linha, sizeof(linha), arquivo);
+    fgets(linha, sizeof(linha), arquivo);
+
+    while (fgets(linha, sizeof(linha), arquivo)) {
+        if (sscanf(linha, "%dº | %49s | %f", &pos, nome, &tempo) == 3) {
+            lista = adicionarRecorde(lista, nome, tempo);
+        }
+    }
+
+    fclose(arquivo);
+    return lista;
+}
+
+void salvarRankingEmArquivo(char** nomes, float* tempos, int quantidade) {
+    FILE* arquivo = fopen("ranking.txt", "w");
+    if (!arquivo) return;
+    fprintf(arquivo, "Colocacao | Nome       | Tempo (s)\n");
+    fprintf(arquivo, "-------------------------------\n");
+    for (int i = 0; i < quantidade; i++) {
+        fprintf(arquivo, "%dº        | %-10s | %.2f\n", i + 1, nomes[i], tempos[i]);
+    }
+    fclose(arquivo);
+    printf("Ranking salvo no arquivo ranking.txt\n");
+}
+
 int MostrarMenu() {
     int menuOption = 0;  // 0 = Iniciar Jogo, 1 = Sair
 
