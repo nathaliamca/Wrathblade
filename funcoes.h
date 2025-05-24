@@ -1,6 +1,23 @@
-// menu.h
-#ifndef MENU_H
-#define MENU_H
+#ifndef FUNCOES_H
+#define FUNCOES_H
+
+typedef struct lista_recorde {
+    char nome[50];
+    float time;
+    struct lista_recorde *next;
+} Recorde;
+
+typedef struct {
+    Vector2 position;
+    Texture2D texture;
+    Rectangle frameRec;
+    int currentFrame;
+    int framesCounter;
+    int framesSpeed;
+
+    int vida;
+    bool alive;
+} Boss;
 
 typedef struct {
     Vector2 position;
@@ -18,7 +35,6 @@ typedef struct {
     bool movingRight;
     int vida;
 } Player;
-
 
 typedef struct {
     Vector2 position;
@@ -65,6 +81,10 @@ void AdicionarProjetil(Projetil **lista, Vector2 pos, Vector2 vel, Texture2D tex
 void RemoverProjetil(Projetil **lista, Projetil *proj);
 void BossMap(Player* player, float tempoJogo);
 
-// void Recordes();
+void salvarRankingEmArquivo(char** nomes, float* tempos, int quantidade);
+Recorde* carregarRecordesDoArquivo();
+void converterListaParaMatriz(Recorde* lista, char*** nomes, float** tempos, int* quantidade);
+void ordenarListaPorTempo(Recorde* lista);
+Recorde* adicionarRecorde(Recorde* lista, const char* nome, float time);
 
 #endif
