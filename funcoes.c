@@ -188,10 +188,10 @@ void Jogo() {
     float tempoJogo = 0.0f;  // tempo acumulado desde o início da partida
 
     Portal portal = {
-        .position = (Vector2){3700, 290},  // posição próxima ao fim do mapa
+        .position = (Vector2){3900, 290},  // posição próxima ao fim do mapa
         .texture = portalTex,
         .frameRec = (Rectangle){0, 0, 32, 32},  // ajuste ao tamanho real da textura
-        .hitbox = (Rectangle){3750, 315, 32, 32},
+        .hitbox = (Rectangle){3950, 315, 32, 32},
 
         .currentFrame = 0,
         .framesCounter = 0,
@@ -253,7 +253,7 @@ void Jogo() {
 
     // tamanho do mapa
     const float mapStart = 300; // inicio do mapa
-    const float mapEnd = 9000; // fim do mapa
+    const float mapEnd = 8000; // fim do mapa
 
     Camera2D camera = { 0 };
     camera.target = (Vector2){ player.position.x + (32 * scale)/2, 
@@ -837,9 +837,9 @@ void BossMap(Player* player,float tempoJogo) {
         };
         
         Rectangle bossRect = {
-            boss.position.x,
+            boss.position.x + 32,
             boss.position.y,
-            64 * 1,
+            64 * 2,
             64 * 4
         };
 
