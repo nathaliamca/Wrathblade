@@ -47,20 +47,35 @@
   - C
   
 - **Bibliotecas**:
-  - [Raylib](https://www.raylib.com) (Gráficos)
-  - [GLFW](https://www.glfw.org) (Interface gráfica)
+  - [Raylib](https://www.raylib.com)
+  - [GLFW](https://www.glfw.org) (Ja inclusa na raylib)
 
 ---
 
 ## 📝 **Instruções para Rodar o Jogo** 📝
 
-### 1️⃣ **Clone o Repositório**
 
-Para começar, clone o repositório do **Wrathblade**:
+## Windows
 
-git clone https://github.com/nathaliamca/Wrathblade.git
+1. Faça o download da última versão:
+   👉 [**Download Wrathblade para Windows**](https://github.com/nathaliamca/Wrathblade/releases)
 
-logo após abra o vscode com o projeto e clique em "Wrathblade.exe"
+2. Extraia o `.zip`
 
+3. Clique duas vezes em `Wrathblade.exe`
+
+> A `raylib.dll` já está incluída na pasta. Não é necessário instalar nada!
+
+---
+
+## Linux/macOS
+
+### Pré-requisitos:
+- GCC
+- Raylib (`sudo apt install libraylib-dev` ou instale manualmente)
+
+### Comando para compilar:
+```bash
+gcc main.c funcoes.c -o wrathblade -lraylib -lm -ldl -lpthread -lGL
 
 **prontinho para ser jogado!**

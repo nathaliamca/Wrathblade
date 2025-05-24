@@ -11,6 +11,18 @@ typedef struct {
     Vector2 position;
     Texture2D texture;
     Rectangle frameRec;
+    int currentFrame;
+    int framesCounter;
+    int framesSpeed;
+
+    int vida;
+    bool alive;
+} Boss;
+
+typedef struct {
+    Vector2 position;
+    Texture2D texture;
+    Rectangle frameRec;
 
     int currentFrame;
     int framesCounter;
@@ -69,6 +81,10 @@ void AdicionarProjetil(Projetil **lista, Vector2 pos, Vector2 vel, Texture2D tex
 void RemoverProjetil(Projetil **lista, Projetil *proj);
 void BossMap(Player* player, float tempoJogo);
 
-// void Recordes();
+void salvarRankingEmArquivo(char** nomes, float* tempos, int quantidade);
+Recorde* carregarRecordesDoArquivo();
+void converterListaParaMatriz(Recorde* lista, char*** nomes, float** tempos, int* quantidade);
+void ordenarListaPorTempo(Recorde* lista);
+Recorde* adicionarRecorde(Recorde* lista, const char* nome, float time);
 
 #endif
