@@ -926,7 +926,7 @@ void BossMap(Player* player,float tempoJogo) {
         if (!boss.alive) {
             Texture2D youWonTexture = LoadTexture("assets/cenario/youwon.png");
 
-            Recorde* lista = carregarRecordesDoArquivo(); // ← agora carrega do arquivo
+            Recorde* lista = carregarRecordesDoArquivo();
             lista = adicionarRecorde(lista, nome, tempoJogo);
             ordenarListaPorTempo(lista);
 
@@ -939,24 +939,21 @@ void BossMap(Player* player,float tempoJogo) {
             for (int i = 0; i < quantidade; i++) free(nomes[i]);
             free(nomes);
             free(tempos);
-
             while (lista) {
                 Recorde* temp = lista;
                 lista = lista->next;
                 free(temp);
             }
 
-            while (true) {
+            while (!WindowShouldClose()) {
                 BeginDrawing();
                 ClearBackground(BLACK);
-
                 DrawTexture(
                     youWonTexture,
                     (GetScreenWidth() - youWonTexture.width) / 2,
                     (GetScreenHeight() - youWonTexture.height) / 2 - 50,
                     WHITE
                 );
-
                 DrawText(
                     "Pressione ENTER para voltar ao menu",
                     GetScreenWidth() / 2 - MeasureText("Pressione ENTER para voltar ao menu", 30) / 2,
@@ -964,19 +961,16 @@ void BossMap(Player* player,float tempoJogo) {
                     30,
                     WHITE
                 );
-
                 EndDrawing();
 
                 if (IsKeyPressed(KEY_ENTER)) {
                     UnloadTexture(youWonTexture);
-                    return; // sai da função BossMap
-                }
-
-                if (WindowShouldClose()) {
-                    CloseWindow();
-                    exit(0);
+                    return; // <-- Aqui garante que a função BossMap acabe de verdade
                 }
             }
+
+            UnloadTexture(youWonTexture);
+            return; // segurança adicional caso a janela feche
         }
 
         // Desenho
