@@ -5,9 +5,9 @@
 #include <stdio.h>   // NOVO: Para arquivos
 #include <time.h>    // NOVO: Para medir tempo (opcional)
 #include <stdlib.h>
+#include <string.h>
 
 char nome[50] = {0};
-void SalvarRecorde(const char *nome, float tempoTotal);
 
 void AdicionarProjetil(Projetil **lista, Vector2 pos, Vector2 vel, Texture2D texture);
 void RemoverProjetil(Projetil **lista, Projetil *proj);
@@ -110,9 +110,9 @@ void InputName() {
         Rectangle destRect = {0, 0, (float)screenWidth, (float)screenHeight};
         DrawTexturePro(menuBackground, (Rectangle){0, 0, menuBackground.width, menuBackground.height}, destRect, (Vector2){0, 0}, 0.0f, WHITE);
 
-        DrawText("Digite seu nome:", 300, 300, 30, WHITE);
-        DrawText(nome, 300, 340, 40, WHITE);
-        DrawText("Pressione ENTER para continuar", 300, 400, 30, WHITE);
+        DrawText("Digite seu nome:", 500, 300, 30, WHITE);
+        DrawText(nome, 500, 340, 40, WHITE);
+        DrawText("Pressione ENTER para continuar", 500, 400, 30, WHITE);
         EndDrawing();
 
         // Confirmar nome com ENTER
@@ -1002,44 +1002,6 @@ void BossMap(Player* player,float tempoJogo) {
     }
 }
 
-void SalvarRecorde(const char *nome, float tempoTotal) {
-    FILE *arquivo = fopen("recordes.txt", "a");
-    if (arquivo != NULL) {
-        fprintf(arquivo, "%s %.2f\n", nome, tempoTotal);
-        fclose(arquivo);
-    } else {
-        printf("Erro ao abrir o arquivo de recordes.\n");
-    }
-}
-void MostrarRecordes() {
-    FILE *arquivo = fopen("recordes.txt", "r");
-    char linha[100];
-
-    while (!WindowShouldClose()) {
-        BeginDrawing();
-        ClearBackground(BLACK);
-
-        DrawText("Recordes", 100, 50, 40, WHITE);
-
-        if (arquivo) {
-            int y = 120;
-            rewind(arquivo);
-            while (fgets(linha, sizeof(linha), arquivo)) {
-                DrawText(linha, 100, y, 30, WHITE);
-                y += 40;
-            }
-        } else {
-            DrawText("Nenhum recorde encontrado.", 100, 120, 30, WHITE);
-        }
-
-        DrawText("Pressione ESC para voltar", 100, GetScreenHeight() - 50, 20, WHITE);
-        EndDrawing();
-
-        if (IsKeyPressed(KEY_ESCAPE)) break;
-    }
-
-    if (arquivo) fclose(arquivo);
-}
 
 
 void AdicionarProjetil(Projetil **lista, Vector2 pos, Vector2 vel, Texture2D texture) {
@@ -1072,4 +1034,102 @@ void RemoverProjetil(Projetil **lista, Projetil *proj) {
         anterior->next = proj->next;
         free(proj);
     }
+}
+
+struct lista_recorde{
+    char nome [50];
+    float time;
+    struct lista_recorde *next;
+};
+
+struct lista_recorde* adicionarRecorde(struct lista_recorde* lista, const char* nome, float time) {
+    struct lista_recorde* novo = (struct lista_recorde*)malloc(sizeof(struct lista_recorde));
+    if (novo == NULL) {
+        exit(1);
+    }
+
+    strcpy(novo->nome, nome);
+    novo->time = time;
+    novo->next = lista;
+
+    return novo; 
+};
+
+void ordenarListaPorTempo(struct lista_recorde *lista) {
+    if (lista == NULL) return;
+
+    int trocou;
+    struct lista_recorde *atual;
+    struct lista_recorde *prox = NULL;
+
+    do {
+        trocou = 0;
+        atual = lista;
+
+        while (atual->next != prox) {
+            if (atual->time > atual->next->time) {
+                // Troca os dados (nome e tempo)
+                char tempNome[50];
+                float tempTime;
+
+                strcpy(tempNome, atual->nome);
+                tempTime = atual->time;
+
+                strcpy(atual->nome, atual->next->nome);
+                atual->time = atual->next->time;
+
+                strcpy(atual->next->nome, tempNome);
+                atual->next->time = tempTime;
+
+                trocou = 1;
+            }
+            atual = atual->next;
+        }
+        prox = atual;
+    } while (trocou);
+}
+
+void converterListaParaMatriz(struct lista_recorde *lista, char ***nomes, float **tempos, int *quantidade) {
+    // Primeiro conta quantos elementos tem na lista
+    int count = 0;
+    struct lista_recorde *atual = lista;
+    while (atual != NULL) {
+        count++;
+        atual = atual->next;
+    }
+
+    // Aloca memória para os vetores
+    *nomes = (char**)malloc(count * sizeof(char*));
+    *tempos = (float*)malloc(count * sizeof(float));
+    if (*nomes == NULL || *tempos == NULL) {
+        exit(1);
+    }
+
+    // Preenche os vetores
+    atual = lista;
+    for (int i = 0; i < count; i++) {
+        (*nomes)[i] = (char*)malloc(50 * sizeof(char));  // aloca espaço para cada nome
+        strcpy((*nomes)[i], atual->nome);
+        (*tempos)[i] = atual->time;
+        atual = atual->next;
+    }
+
+    *quantidade = count;
+}
+
+void salvarRankingEmArquivo(char nomes[][50], float tempos[], int quantidade) {
+    FILE *arquivo = fopen("ranking.txt", "w");  // arquivo fixo aqui
+    if (arquivo == NULL) {
+        return;
+    }
+
+    fprintf(arquivo, "Colocacao | Nome       | Tempo (s)\n");
+    fprintf(arquivo, "-------------------------------\n");
+
+    for (int i = 0; i < quantidade; i++) {
+        fprintf(arquivo, "%dº        | %-10s | %.2f\n", i + 1, nomes[i], tempos[i]);
+    }
+
+    fclose(arquivo);
+    printf("Ranking salvo no arquivo ranking.txt\n");
 }

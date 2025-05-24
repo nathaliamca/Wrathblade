@@ -12,9 +12,7 @@ int main(void) {
             InputName();
             Jogo(); // inicia o jogo
         }
-        else if (escolha == 1) {
-            MostrarRecordes(); // mostra os recordes
-        }
+        
         else if (escolha == 2) {
             break; // sair do loop
         }

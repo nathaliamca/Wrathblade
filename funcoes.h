@@ -59,9 +59,9 @@ typedef struct Projetil {
 int MostrarMenu();  // declara a função para ser usada em outros arquivos
 void InputName();
 void Jogo();
-void MostrarRecordes();
-void SalvarRecorde(const char *nome, float tempoTotal);
 void BossMap(Player* player, float tempoJogo);
-// void Recordes();
+void adicionarRecorde(Recorde lista[], int *quantidade, const char *nome, float tempo);
+void ordenarListaPorTempo(Recorde lista[], int quantidade);
+void salvarRankingEmArquivo(Recorde lista[], int quantidade);
 
 #endif
