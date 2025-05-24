@@ -117,10 +117,10 @@ int InputName() {
         Rectangle destRect = {0, 0, (float)screenWidth, (float)screenHeight};
         DrawTexturePro(menuBackground, (Rectangle){0, 0, menuBackground.width, menuBackground.height}, destRect, (Vector2){0, 0}, 0.0f, WHITE);
 
-        DrawText("Digite seu nome:", 500, 300, 30, WHITE);
-        DrawText(nome, 500, 340, 40, WHITE);
-        DrawText("Pressione ENTER para continuar", 500, 400, 30, WHITE);
-        DrawText("Pressione ESC para voltar ao menu", 500, 440, 20, WHITE);
+        DrawText("Digite seu nome:", 300, 300, 30, WHITE);
+        DrawText(nome, 300, 340, 40, WHITE);
+        DrawText("Pressione ENTER para continuar", 300, 400, 30, WHITE);
+        DrawText("Pressione ESC para voltar ao menu", 300, 440, 20, WHITE);
         EndDrawing();
     }
 
