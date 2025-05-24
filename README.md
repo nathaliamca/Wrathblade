@@ -77,5 +77,5 @@
 ### Comando para compilar:
 ```bash
 gcc main.c funcoes.c -o wrathblade -lraylib -lm -ldl -lpthread -lGL
-
+```
 **prontinho para ser jogado!**
