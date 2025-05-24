@@ -5,8 +5,100 @@
 #include <stdio.h>   
 #include <time.h>  
 #include <stdlib.h>
+#include <string.h>
 
 char nome[50] = {0};
+
+Recorde* adicionarRecorde(Recorde* lista, const char* nome, float time) {
+    Recorde* novo = (Recorde*)malloc(sizeof(Recorde));
+    if (!novo) exit(1);
+    strcpy(novo->nome, nome);
+    novo->time = time;
+    novo->next = lista;
+    return novo;
+}
+
+void ordenarListaPorTempo(Recorde* lista) {
+    if (!lista) return;
+    int trocou;
+    Recorde *atual;
+    Recorde *limite = NULL;
+    do {
+        trocou = 0;
+        atual = lista;
+        while (atual->next != limite) {
+            if (atual->time > atual->next->time) {
+                char tempNome[50];
+                float tempTime;
+                strcpy(tempNome, atual->nome);
+                tempTime = atual->time;
+                strcpy(atual->nome, atual->next->nome);
+                atual->time = atual->next->time;
+                strcpy(atual->next->nome, tempNome);
+                atual->next->time = tempTime;
+                trocou = 1;
+            }
+            atual = atual->next;
+        }
+        limite = atual;
+    } while (trocou);
+}
+
+void converterListaParaMatriz(Recorde* lista, char*** nomes, float** tempos, int* quantidade) {
+    int count = 0;
+    Recorde* atual = lista;
+    while (atual) {
+        count++;
+        atual = atual->next;
+    }
+    *nomes = (char**)malloc(count * sizeof(char*));
+    *tempos = (float*)malloc(count * sizeof(float));
+    if (!*nomes || !*tempos) exit(1);
+    atual = lista;
+    for (int i = 0; i < count; i++) {
+        (*nomes)[i] = (char*)malloc(50 * sizeof(char));
+        strcpy((*nomes)[i], atual->nome);
+        (*tempos)[i] = atual->time;
+        atual = atual->next;
+    }
+    *quantidade = count;
+}
+
+Recorde* carregarRecordesDoArquivo() {
+    FILE* arquivo = fopen("ranking.txt", "r");
+    if (!arquivo) return NULL;
+
+    Recorde* lista = NULL;
+    char linha[100];
+    int pos;
+    char nome[50];
+    float tempo;
+
+    // pula cabeçalho (2 linhas)
+    fgets(linha, sizeof(linha), arquivo);
+    fgets(linha, sizeof(linha), arquivo);
+
+    while (fgets(linha, sizeof(linha), arquivo)) {
+        if (sscanf(linha, "%dº | %49s | %f", &pos, nome, &tempo) == 3) {
+            lista = adicionarRecorde(lista, nome, tempo);
+        }
+    }
+
+    fclose(arquivo);
+    return lista;
+}
+
+void salvarRankingEmArquivo(char** nomes, float* tempos, int quantidade) {
+    FILE* arquivo = fopen("ranking.txt", "w");
+    if (!arquivo) return;
+    fprintf(arquivo, "Colocacao | Nome       | Tempo (s)\n");
+    fprintf(arquivo, "-------------------------------\n");
+    for (int i = 0; i < quantidade; i++) {
+        fprintf(arquivo, "%dº        | %-10s | %.2f\n", i + 1, nomes[i], tempos[i]);
+    }
+    fclose(arquivo);
+    printf("Ranking salvo no arquivo ranking.txt\n");
+}
 
 int MostrarMenu() {
     int menuOption = 0;  // 0 = Iniciar Jogo, 1 = Sair
@@ -891,6 +983,26 @@ void BossMap(Player* player,float tempoJogo) {
 
         if (!boss.alive) {
             Texture2D youWonTexture = LoadTexture("assets/cenario/youwon.png");
+            
+            Recorde* lista = carregarRecordesDoArquivo(); // ← agora carrega do arquivo
+            lista = adicionarRecorde(lista, nome, tempoJogo);
+            ordenarListaPorTempo(lista);
+
+            char** nomes;
+            float* tempos;
+            int quantidade;
+            converterListaParaMatriz(lista, &nomes, &tempos, &quantidade);
+            salvarRankingEmArquivo(nomes, tempos, quantidade);
+
+            for (int i = 0; i < quantidade; i++) free(nomes[i]);
+            free(nomes);
+            free(tempos);
+
+            while (lista) {
+                Recorde* temp = lista;
+                lista = lista->next;
+                free(temp);
+            }
 
             while (true) {
                 BeginDrawing();
@@ -1016,28 +1128,40 @@ void SalvarRecorde(const char *nome, float tempoTotal) {
         printf("Erro ao abrir o arquivo de recordes.\n");
     }
 }
+
 void MostrarRecordes() {
-    FILE *arquivo = fopen("recordes.txt", "r");
+    FILE *arquivo = fopen("ranking.txt", "r");
     char linha[100];
 
     while (!WindowShouldClose()) {
         BeginDrawing();
         ClearBackground(BLACK);
 
-        DrawText("Recordes", 100, 50, 40, WHITE);
+        DrawText("Ranking de Recordes", 100, 50, 40, WHITE);
 
         if (arquivo) {
             int y = 120;
             rewind(arquivo);
+
+            int linhaNum = 0;
             while (fgets(linha, sizeof(linha), arquivo)) {
-                DrawText(linha, 100, y, 30, WHITE);
+                // Pula a linha de cabeçalho se quiser ignorar
+                if (linhaNum == 0) {
+                    DrawText(linha, 100, y, 30, YELLOW); // Cabeçalho
+                } else if (linhaNum == 1) {
+                    DrawText(linha, 100, y, 30, GRAY); // Separador
+                } else {
+                    DrawText(linha, 100, y, 30, WHITE); // Recorde
+                }
+
                 y += 40;
+                linhaNum++;
             }
         } else {
             DrawText("Nenhum recorde encontrado.", 100, 120, 30, WHITE);
         }
 
-        DrawText("Pressione ESC para voltar", 100, GetScreenHeight() - 50, 20, WHITE);
+        DrawText("Pressione ESC para voltar", 100, GetScreenHeight() - 50, 20, LIGHTGRAY);
         EndDrawing();
 
         if (IsKeyPressed(KEY_ESCAPE)) break;
@@ -1045,7 +1169,6 @@ void MostrarRecordes() {
 
     if (arquivo) fclose(arquivo);
 }
-
 
 void AdicionarProjetil(Projetil **lista, Vector2 pos, Vector2 vel, Texture2D texture) {
     Projetil *novo = malloc(sizeof(Projetil));
