@@ -211,7 +211,7 @@ void Jogo() {
         .frameRec = (Rectangle){0, 0, 32, 32}
     };
 
-    int quantidade_slimes = 4;
+    int quantidade_slimes = 1;
 
     Slime slimes[quantidade_slimes];
 
@@ -471,11 +471,17 @@ void Jogo() {
 
             DrawText("Pressione ENTER para reiniciar", 
                 GetScreenWidth()/2 - 200, 
-                GetScreenHeight() - 100, 
+                GetScreenHeight() - 150, 
                 30, 
                 WHITE
             );
 
+            DrawText("Pressione ESC para voltar ao menu", 
+                GetScreenWidth()/2 - 200, 
+                GetScreenHeight() - 100, 
+                20, 
+                WHITE
+            );
             EndDrawing();
 
             if (IsKeyPressed(KEY_ENTER)) {
@@ -495,6 +501,10 @@ void Jogo() {
                 }
 
                 isGameOver = false;
+            }
+
+            if (IsKeyPressed(KEY_ESCAPE)) {
+                return;
             }
 
             continue; // Pula o resto do loop e volta
@@ -852,10 +862,13 @@ void BossMap(Player* player,float tempoJogo) {
 
         // colisao dano do player
         if (CheckCollisionRecs(playerAtackRect, bossRect) && isAttacking && bossDanoCooldown <= 0) {
-            boss.vida -= 1;
+            boss.vida -= 10;
             bossDanoCooldown = tempoEntreDanoBoss;
 
-            if (boss.vida <= 0) boss.alive = false;
+            if (boss.vida <= 0) {
+                boss.alive = false;
+                isGameOver = false;
+            }
         }
 
         Projetil *atual = listaProjetil;            
@@ -907,8 +920,16 @@ void BossMap(Player* player,float tempoJogo) {
 
             DrawText("Pressione ENTER para reiniciar", 
                 GetScreenWidth()/2 - 200, 
-                GetScreenHeight() - 100, 
+                GetScreenHeight() - 150, 
                 30, 
+                WHITE
+            );
+
+            
+            DrawText("Pressione ESC para voltar ao menu", 
+                GetScreenWidth()/2 - 200, 
+                GetScreenHeight() - 100, 
+                20, 
                 WHITE
             );
 
@@ -920,8 +941,13 @@ void BossMap(Player* player,float tempoJogo) {
                 isGameOver = false;
             }
 
+            if (IsKeyPressed(KEY_ESCAPE)) {
+                return;
+            }
+
             continue; // Pula o resto do loop e volta
         }
+
 
         if (!boss.alive) {
             Texture2D youWonTexture = LoadTexture("assets/cenario/youwon.png");
