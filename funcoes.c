@@ -211,7 +211,7 @@ void Jogo() {
         .frameRec = (Rectangle){0, 0, 32, 32}
     };
 
-    int quantidade_slimes = 1;
+    int quantidade_slimes = 4;
 
     Slime slimes[quantidade_slimes];
 
@@ -862,7 +862,7 @@ void BossMap(Player* player,float tempoJogo) {
 
         // colisao dano do player
         if (CheckCollisionRecs(playerAtackRect, bossRect) && isAttacking && bossDanoCooldown <= 0) {
-            boss.vida -= 10;
+            boss.vida -= 1;
             bossDanoCooldown = tempoEntreDanoBoss;
 
             if (boss.vida <= 0) {
