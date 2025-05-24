@@ -1,6 +1,11 @@
-// menu.h
-#ifndef MENU_H
-#define MENU_H
+#ifndef FUNCOES_H
+#define FUNCOES_H
+
+typedef struct lista_recorde {
+    char nome[50];
+    float time;
+    struct lista_recorde *next;
+} Recorde;
 
 typedef struct {
     Vector2 position;
@@ -18,7 +23,6 @@ typedef struct {
     bool movingRight;
     int vida;
 } Player;
-
 
 typedef struct {
     Vector2 position;
