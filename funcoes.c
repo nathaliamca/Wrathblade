@@ -450,6 +450,7 @@ void Jogo() {
 
             if (CheckCollisionRecs(playerRect, portal.hitbox)) {
                 BossMap(&player, tempoJogo);
+                isGameOver = false;
                 return;
             }
         }
