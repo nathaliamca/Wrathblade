@@ -38,6 +38,9 @@
 
 ---
 
+## screencast
+- https://www.youtube.com/watch?v=NwkagvQnFRw
+
 ## ⚙️ **Requisitos do Jogo** ⚙️
 
 - **Sistema Operacional**: 
